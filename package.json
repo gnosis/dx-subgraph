@@ -27,6 +27,7 @@
     "build": "graph build --debug",
     "deploy": "graph deploy Gnosis/DutchX --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy Gnosis/DutchX --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "migrate": "cd node_modules/@gnosis.pm/dx-contracts && echo 'module.exports={networks:{development:{host:\"localhost\",port:8545,network_id:\"*\"}}}' > truffle-local.js && npx truffle migrate --network=development --reset",
     "refresh-abi": "node ops/abiGenerator.js"
   },
   "devDependencies": {
@@ -54,8 +55,8 @@
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0",
     "dotenv": "^8.0.0",
-    "truffle": "^5.0.15",
-    "truffle-contract": "^4.0.14",
-    "truffle-hdwallet-provider": "^1.0.8"
+    "truffle": "^4.1.14",
+    "truffle-contract": "^3.0.6",
+    "truffle-hdwallet-provider": "^1.0.2"
   }
 }
