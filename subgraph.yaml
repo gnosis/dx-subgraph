@@ -1,27 +1,42 @@
 specVersion: 0.0.1
-description: Gravatar for Ethereum
-repository: https://github.com/graphprotocol/example-subgraph
+description: DutchX Subgraph
+repository: https://github.com/gnosis/dx-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Gravity
-    network: mainnet
+    name: DutchExchange
+    network: dev
     source:
-      address: '0x2E645469f354BB4F5c8a05B3b30A929361cf77eC'
-      abi: Gravity
+      address: '0xb09bcc172050fbd4562da8b229cf3e45dc3045a6'
+      abi: DutchExchange
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.1
       language: wasm/assemblyscript
       entities:
-        - Gravatar
+        - DeutchExchange
       abis:
-        - name: Gravity
-          file: ./abis/Gravity.json
+        - name: DutchExchange
+          file: ./abis/DutchExchange.json
       eventHandlers:
-        - event: NewGravatar(uint256,address,string,string)
-          handler: handleNewGravatar
-        - event: UpdatedGravatar(uint256,address,string,string)
-          handler: handleUpdatedGravatar
+        - event: NewDeposit(address,uint256)
+          handler: handleNewDeposit
+        - event: NewWithdrawal(address,uint256)
+          handler: handleNewWithdrawal
+        - event: NewSellOrder(address,address,address,uint256,uint256)
+          handler: handleNewSellOrder
+        - event: NewBuyOrder(address,address,address,uint256,uint256)
+          handler: handleNewBuyOrder
+        - event: NewSellerFundsClaim(address,address,address,uint256,uint256,uint256)
+          handler: handleNewSellFundsClaim
+        - event: NewBuyerFundsClaim(address,address,address,uint256,uint256,uint256)
+          handler: handleNewBuyerFundsClaim
+        - event: NewTokenPair(address,address)
+          handler: handleNewTokenPair
+        - event: AuctionCleared(address,address,uint256,uint256,uint256)
+          handler: handleAuctionCleared
+        - event: AuctionStartScheduled(address,address,uint256,uint256)
+          handler: handleAuctionStartScheduled
+        - event: Fee(address,address,address,uint256,uint256)
       file: ./src/mapping.ts

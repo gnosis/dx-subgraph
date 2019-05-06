@@ -1,5 +1,5 @@
 {
-  "name": "dutch-x-subgraph",
+  "name": "dutchx-subgraph",
   "version": "0.0.1",
   "description": "A subgraph for the DutchX protocol.",
   "main": "index.js",
