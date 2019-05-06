@@ -1,0 +1,11 @@
+# Standard
+.env
+node_modules
+.DS_STORE
+
+# Created with `Graph Codegen` 
+src/types
+dist
+
+# ABI Files -- Created with `npm run refresh-abi`
+abis
