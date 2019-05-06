@@ -12,7 +12,7 @@ dataSources:
       abi: DutchExchange
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.1
+      apiVersion: 0.0.2
       language: wasm/assemblyscript
       entities:
         - DeutchExchange
@@ -39,4 +39,5 @@ dataSources:
         - event: AuctionStartScheduled(address,address,uint256,uint256)
           handler: handleAuctionStartScheduled
         - event: Fee(address,address,address,uint256,uint256)
+          handler: handleFee
       file: ./src/mapping.ts
