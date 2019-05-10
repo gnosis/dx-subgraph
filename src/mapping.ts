@@ -21,3 +21,8 @@ import {
   TokenBalance,
   TokenAuctionBalance
 } from './types/schema';
+
+export handeNewTokenPair(event: NewTokenPair) {
+  // bind the contract
+  // lookup the funding, attribute it properly
+}
