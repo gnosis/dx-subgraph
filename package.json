@@ -28,9 +28,11 @@
     "deploy": "graph deploy Gnosis/DutchX --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy Gnosis/DutchX --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "migrate": "cd node_modules/@gnosis.pm/dx-contracts && echo 'module.exports={networks:{development:{host:\"localhost\",port:8545,network_id:\"*\"}}}' > truffle-local.js && npx truffle migrate --network=development --reset",
+    "migrate-test-tokens": "cd test/test-tokens && npx truffle migrate --network=development --reset",
     "refresh-abi": "node ops/abiGenerator.js"
   },
   "devDependencies": {
+    "@digix/tempo": "^0.2.0",
     "@gnosis.pm/dx-contracts": "^2.0.0",
     "@graphprotocol/graph-cli": "^0.9.0",
     "@graphprotocol/graph-ts": "^0.9.0",
