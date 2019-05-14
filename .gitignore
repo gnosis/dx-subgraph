@@ -9,3 +9,5 @@ dist
 
 # ABI Files -- Created with `npm run refresh-abi`
 abis
+build
+.history
