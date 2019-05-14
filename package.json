@@ -27,7 +27,7 @@
     "build": "graph build --debug",
     "deploy": "graph deploy Gnosis/DutchX --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy Gnosis/DutchX --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "migrate": "cd node_modules/@gnosis.pm/dx-contracts && echo 'module.exports={networks:{development:{host:\"localhost\",port:8545,network_id:\"*\"}}}' > truffle-local.js && npx truffle migrate --network=development --reset",
+    "migrate": "cd node_modules/@gnosis.pm/dx-contracts && echo 'module.exports={networks:{development:{host:\"localhost\",port:8545,network_id:\"*\"}}}' > truffle-local.js && npm i && npx truffle migrate --network=development --reset",
     "migrate-test-tokens": "cd test/test-tokens && npx truffle migrate --network=development --reset",
     "refresh-abi": "node ops/abiGenerator.js"
   },
@@ -37,28 +37,28 @@
     "@graphprotocol/graph-cli": "^0.9.0",
     "@graphprotocol/graph-ts": "^0.9.0",
     "axios": "^0.18.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
     "chai": "^4.2.0",
     "delay": "^4.2.0",
+    "dotenv": "^8.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jsx-a11y": "^6.2.1",
-    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.13.0",
     "jest": "^24.8.0",
     "mocha": "^6.1.4",
     "openzeppelin-solidity": "^2.2.0",
-    "prettier": "^1.17.0",
+    "prettier": "^1.17.1",
     "tmp": "^0.1.0",
-    "tslint-config-prettier": "^1.18.0"
+    "truffle": "^5.0.17",
+    "truffle-contract": "^4.0.14",
+    "truffle-hdwallet-provider": "^1.0.9",
+    "tslint-config-prettier": "^1.18.0",
+    "web3": "^1.0.0-beta.37"
   },
-  "dependencies": {
-    "babel-polyfill": "^6.26.0",
-    "babel-register": "^6.26.0",
-    "dotenv": "^8.0.0",
-    "truffle": "^4.1.14",
-    "truffle-contract": "^3.0.6",
-    "truffle-hdwallet-provider": "^1.0.2"
-  }
+  "dependencies": {}
 }
