@@ -54,11 +54,10 @@
     "openzeppelin-solidity": "^2.2.0",
     "prettier": "^1.17.1",
     "tmp": "^0.1.0",
-    "truffle": "^5.0.17",
+    "truffle": "^3.2.2",
     "truffle-contract": "^4.0.14",
     "truffle-hdwallet-provider": "^1.0.9",
-    "tslint-config-prettier": "^1.18.0",
-    "web3": "^1.0.0-beta.37"
+    "tslint-config-prettier": "^1.18.0"
   },
   "dependencies": {}
 }

@@ -4,10 +4,9 @@ const delay = require('delay');
 const { execSync, spawnSync } = require('child_process');
 const TruffleContract = require('truffle-contract');
 const { add } = require('bn.js');
-let Web3 = require('web3');
+// let Web3 = require('web3');
 const { log, error } = console;
-const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-
+// let web3 = new Web3();
 const contracts = [
   // 'EtherToken',
   // 'TokenGNO',
@@ -24,7 +23,7 @@ const contracts = [
 const EtherToken = TruffleContract(
   require('@gnosis.pm/dx-contracts/build/contracts/EtherToken.json')
 );
-EtherToken.setProvider(provider);
+EtherToken.setProvider('http://localhost:8545');
 log(EtherToken);
 
 // const actualContracts = contracts.map(contractName => {
@@ -62,11 +61,11 @@ log(EtherToken);
 
 describe('Complete scenario tests for accurate mappings', function() {
   this.timeout(10000);
-  let contract;
+  let contract, etherTokenInstance;
 
   before(async function() {
-    accounts = await web3.eth.getAccounts();
-    web3.eth.defaultAccount = minter = accounts[0];
+    // accounts = await web3.eth.getAccounts();
+    // web3.eth.defaultAccount = minter = accounts[0];
     let etherTokenInstance = await EtherToken.deployed();
   });
 
