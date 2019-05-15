@@ -20,16 +20,21 @@
   },
   "homepage": "https://github.com/gnosis/dx-subgraph#readme",
   "scripts": {
-    "build-contract": "solc contracts/Gravity.sol --abi -o abis --overwrite && solc contracts/Gravity.sol --bin -o bin --overwrite",
     "create": "graph create Gnosis/DutchX --node https://api.thegraph.com/deploy/",
     "create-local": "graph create Gnosis/DutchX --node http://127.0.0.1:8020",
     "codegen": "graph codegen --debug --output-dir src/types/",
     "build": "graph build --debug",
     "deploy": "graph deploy Gnosis/DutchX --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy Gnosis/DutchX --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down -v",
+    "docker:logs": "docker-compose logs --follow",
+    "docker:build": "docker-compose build",
     "migrate": "npx truffle migrate",
     "networks": "npx truffle networks",
-    "refresh-abi": "node ops/abiGenerator.js"
+    "refresh-abi": "node ops/abiGenerator.js",
+    "create-deploy-local": "npm run create-local && npm run deploy-local",
+    "create-test-pipeline": "npm run docker:down && npm run docker:up && sleep 9s && npm run create-deploy-local && npx truffle test/dx.spec.js --network development"
   },
   "devDependencies": {
     "@digix/tempo": "^0.2.0",
@@ -54,7 +59,7 @@
     "openzeppelin-solidity": "^2.2.0",
     "prettier": "^1.17.1",
     "tmp": "^0.1.0",
-    "truffle": "^5.0.2",
+    "truffle": "5.0.17",
     "verify-on-etherscan": "^1.1.1",
     "truffle-hdwallet-provider": "^1.0.9",
     "tslint-config-prettier": "^1.18.0"

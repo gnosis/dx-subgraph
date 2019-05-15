@@ -11,3 +11,6 @@ dist
 abis
 build
 .history
+
+# Test Reference files
+testReference

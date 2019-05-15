@@ -8,7 +8,7 @@ dataSources:
     name: DutchExchange
     network: dev
     source:
-      address: '0xb09bcc172050fbd4562da8b229cf3e45dc3045a6'
+      address: '0xD86C8F0327494034F60e25074420BcCF560D5610'
       abi: DutchExchange
     mapping:
       kind: ethereum/events
