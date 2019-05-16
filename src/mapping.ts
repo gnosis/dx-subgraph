@@ -9,16 +9,3 @@ export { handleNewBuyOrder } from './newBuyOrder';
 export { handleNewSellerFundsClaim } from './newSellerFundsClaim';
 export { handleNewSellOrder } from './newSellOrder';
 export { handleNewWithdrawal } from './newWithdrawal';
-
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-
-import {
-  Auction,
-  TokenPair,
-  Trader,
-  SellOrder,
-  BuyOrder,
-  Token,
-  TokenBalance,
-  TokenAuctionBalance
-} from './types/schema';

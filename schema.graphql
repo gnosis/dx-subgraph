@@ -69,12 +69,12 @@ type BuyOrder @entity {
 
 type Token @entity {
   id: ID! #Token Address
-  sellOrders: [SellOrder!]
-  buyOrders: [BuyOrder!]
-  Traders: [Trader!]
-  tokenBalances: [TokenBalance!]
-  tokenPairs: [TokenPair!]
-  whitelisted: Boolean
+  sellOrders: [SellOrder!]!
+  buyOrders: [BuyOrder!]!
+  Traders: [Trader!]!
+  tokenBalances: [TokenBalance!]!
+  tokenPairs: [TokenPair!]!
+  whitelisted: Boolean!
 }
 
 type TokenBalance @entity {

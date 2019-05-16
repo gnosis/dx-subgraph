@@ -40,4 +40,6 @@ dataSources:
           handler: handleAuctionStartScheduled
         - event: Fee(address,address,address,uint256,uint256)
           handler: handleFee
+        - event: Approval(address,bool)
+          handler: handleApproval
       file: ./src/mapping.ts
