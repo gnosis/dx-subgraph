@@ -1,6 +1,7 @@
 import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
 
 export let zeroAsBigInt: BigInt = BigInt.fromI32(0);
+export let oneAsBigInt: BigInt = BigInt.fromI32(1);
 
 export function add256(a: Bytes, b: Bytes): Bytes {
   let aBigInt = new Uint8Array(32) as BigInt;
@@ -31,4 +32,12 @@ export function bigIntToBytes32(bigInt: BigInt): Bytes {
 
 export function auctionId(sellToken: Address, buyToken: Address, auctionIndex: BigInt): string {
   return sellToken.toHex() + '-' + buyToken.toHex() + '-' + auctionIndex.toString();
+}
+
+export function tokenPairId(sellToken: Address, buyToken: Address): string {
+  return sellToken.toHex() + '-' + buyToken.toHex();
+}
+
+export function orderId(transactionHash: Bytes, token: Address): string {
+  return transactionHash.toHex() + '-' + token.toHex();
 }

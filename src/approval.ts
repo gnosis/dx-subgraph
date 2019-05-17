@@ -12,7 +12,7 @@ export function handleApproval(event: Approval): void {
     token = new Token(params.token.toHex());
     token.sellOrders = [];
     token.buyOrders = [];
-    token.Traders = [];
+    token.traders = [];
     token.tokenBalances = [];
     token.tokenPairs = [];
     token.whitelisted = false;

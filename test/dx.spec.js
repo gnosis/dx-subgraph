@@ -71,7 +71,7 @@ contract('DutchExchange', accounts => {
       token1: eth.address,
       token2: gno.address,
       token1Funding: toBN(toWei('10000')),
-      token2Funding: 1000,
+      token2Funding: toBN(toWei('1000')),
       initialClosingPriceNum: 2,
       initialClosingPriceDen: 1
     };

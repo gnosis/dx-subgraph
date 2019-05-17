@@ -1,6 +1,5 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
 import { add256, zeroAsBigInt } from './utils';
-import { NewDeposit, DutchExchange } from './types/DutchExchange/DutchExchange';
+import { NewDeposit } from './types/DutchExchange/DutchExchange';
 import { Trader, Token, TokenBalance } from './types/schema';
 
 export function handleNewDeposit(event: NewDeposit): void {

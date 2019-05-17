@@ -1,5 +1,5 @@
 type Auction @entity {
-  id: ID!
+  id: ID! #identified by sellToken - buyToken + auctionIndex [String]
   sellToken: Bytes!
   buyToken: Bytes!
   sellVolume: BigInt!
@@ -28,31 +28,29 @@ type Trader @entity {
 }
 
 type SellOrder @entity {
-  id: ID! # can be transaction hash in block
+  id: ID! # can be transaction hash + SellToken [String]
   auction: Auction!
   tokenPair: TokenPair!
   trader: Trader!
   amount: BigInt!
   fee: BigInt! 
-  frtIssued: BigInt!
   timestamp: BigInt!
   transactionHash: Bytes!
 }
 
 type BuyOrder @entity {
-  id: ID! # can be transaction hash in block
+  id: ID! # transaction hash + BuyToken [String]
   auction: Auction!
   tokenPair: TokenPair!
   trader: Trader!
   amount: BigInt!
-  fee: BigInt!
-  frtIssued: BigInt!
+  fee: BigInt
   timestamp: BigInt!
   transactionHash: Bytes!
 }
 
 type TokenPair @entity {
-  id: ID! # identified by the sell address + buy address added together
+  id: ID! # identified by the sell address + buy address [Sring]
   sellToken: Bytes!
   buyToken: Bytes!
   totalSellVolume: BigInt!
@@ -67,7 +65,7 @@ type TokenPair @entity {
 }
 
 type Token @entity {
-  id: ID! #Token Address
+  id: ID! #Token Address 
   sellOrders: [SellOrder!]!
   buyOrders: [BuyOrder!]!
   traders: [Trader!]!
@@ -77,7 +75,7 @@ type Token @entity {
 }
 
 type TokenBalance @entity {
-  id: ID! # identified by Trader + Token 
+  id: ID! # identified by Trader + Token [String]
   trader: Trader!
   token: Token!
   totalDeposited: BigInt!
@@ -87,9 +85,9 @@ type TokenBalance @entity {
 }
 
 type TokenAuctionBalance @entity {
-  id: ID! # Trader + Auction 
+  id: ID! # Identified by Trader + Auction [String]
   trader: Trader
   auction: Auction
-  buyTokenBalance: BigInt
   sellTokenBalance: BigInt
+  buyTokenBalance: BigInt
 }

@@ -12,4 +12,6 @@ import {
   TokenAuctionBalance
 } from './types/schema';
 
-export function handleFee(event: Fee): void {}
+export function handleFee(event: Fee): void {
+  
+}
