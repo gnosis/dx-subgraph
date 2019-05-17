@@ -1,10 +1,11 @@
 import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
 
-import { NewTokenPair } from './types/DutchExchange/DutchExchange';
+import { NewTokenPair, DutchExchange } from './types/DutchExchange/DutchExchange';
 import { Token, TokenPair } from './types/schema';
 import { add256 } from './utils';
 
 export function handleNewTokenPair(event: NewTokenPair): void {
+  let dx = DutchExchange.bind(event.address);
   let params = event.params;
 
   let sellToken = Token.load(params.sellToken.toHex());
@@ -25,4 +26,6 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     tokenPair = new TokenPair(combinedAddress.toHex());
   }
   tokenPair.save();
+
+  // Add this token pair to Token.tokenPairs
 }

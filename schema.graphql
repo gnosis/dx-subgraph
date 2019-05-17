@@ -16,29 +16,13 @@ type Auction @entity {
   buyOrders: [BuyOrder!] @derivedFrom(field: "auction")
 }
 
-type TokenPair @entity {
-  id: ID! # identified by the sell address + buy address added together
-  sellToken: Bytes!
-  buyToken: Bytes!
-  totalSellVolume: BigInt!
-  totalBuyVolume: BigInt!
-  listingTime: BigInt!
-  latestStartTime: BigInt!
-  latestClearTime: BigInt
-  auctions: [Auction!]
-  traders: [Trader!]
-  currentAuctionIndex: Int 
-  listingTransactionHash: Bytes
-}
-
 type Trader @entity {
   id: ID! # Address
-  sellOrders: [SellOrder!] @derivedFrom(field: "Trader")
-  buyOrders: [BuyOrder!] @derivedFrom(field: "Trader")
-  tokenPairsParticipated: [TokenPair!]
-  tokensParticipated: [Token!]
-  tokenBalances: [TokenBalance!]
-  frts: BigInt
+  sellOrders: [SellOrder!] @derivedFrom(field: "trader")
+  buyOrders: [BuyOrder!] @derivedFrom(field: "trader")
+  tokenPairsParticipated: [TokenPair!] 
+  tokensParticipated: [Token!] @derivedFrom(field: "traders")
+  tokenBalances: [TokenBalance!] @derivedFrom(field: "trader")
   firstParticipation: BigInt
   lastActive: BigInt
 }
@@ -67,13 +51,28 @@ type BuyOrder @entity {
   transactionHash: Bytes!
 }
 
+type TokenPair @entity {
+  id: ID! # identified by the sell address + buy address added together
+  sellToken: Bytes!
+  buyToken: Bytes!
+  totalSellVolume: BigInt!
+  totalBuyVolume: BigInt!
+  listingTime: BigInt!
+  latestStartTime: BigInt!
+  latestClearTime: BigInt
+  auctions: [Auction!]
+  traders: [Trader!]
+  currentAuctionIndex: Int 
+  listingTransactionHash: Bytes
+}
+
 type Token @entity {
   id: ID! #Token Address
   sellOrders: [SellOrder!]!
   buyOrders: [BuyOrder!]!
-  Traders: [Trader!]!
-  tokenBalances: [TokenBalance!]!
-  tokenPairs: [TokenPair!]!
+  traders: [Trader!]!
+  tokenBalances: [TokenBalance!]! @derivedFrom(field: "token")
+  tokenPairs: [TokenPair!]! 
   whitelisted: Boolean!
 }
 
@@ -81,9 +80,9 @@ type TokenBalance @entity {
   id: ID! # identified by Trader + Token 
   trader: Trader!
   token: Token!
-  totalDeposited: BigInt
-  totalWithdrawn: BigInt
-  balance: BigInt
+  totalDeposited: BigInt!
+  totalWithdrawn: BigInt!
+  balance: BigInt!
   tokenAuctionBalance: [TokenAuctionBalance!]
 }
 
