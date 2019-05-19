@@ -42,8 +42,8 @@ contract('DutchExchange', accounts => {
   const [master, seller1, buyer1] = accounts;
 
   const startBal = {
-    startingETH: toBN(toWei('90')),
-    startingGNO: toBN(toWei('90')),
+    startingETH: toBN(toWei('10000')),
+    startingGNO: toBN(toWei('10000')),
     ethUSDPrice: toBN(toWei('1008')),
     sellingAmount: toBN(toWei('50'))
   };
@@ -71,13 +71,13 @@ contract('DutchExchange', accounts => {
       token1: eth.address,
       token2: gno.address,
       token1Funding: toBN(toWei('10000')),
-      token2Funding: toBN(toWei('1000')),
+      token2Funding: toBN(toWei('1500')),
       initialClosingPriceNum: 2,
       initialClosingPriceDen: 1
     };
 
     // a new deployed GNO to act as a different token
-    gno2 = await TokenGNO.new(toBN(toWei('1000')), { from: master });
+    gno2 = await TokenGNO.new(toBN(toWei('10000')), { from: master });
 
     await Promise.all([
       gno2.transfer(seller1, startBal.startingGNO, { from: master }),
@@ -95,9 +95,11 @@ contract('DutchExchange', accounts => {
   it('DutchExchange', async () => {
     // Add a token pair
     let threshhold = await dx.thresholdNewTokenPair();
-    threshhold = fromWei(threshhold.toString());
-    console.log(threshhold);
     await addTokenPair(seller1);
+    let sellerBalance1 = await dx.sellerBalances(eth.address, gno.address, 1, seller1);
+    console.log('TCL: sellerBalance1', sellerBalance1);
+    let sellerBalance2 = await dx.sellerBalances(gno.address, eth.address, 1, seller1);
+    console.log('TCL: sellerBalance2', sellerBalance2);
     await waitForGraphSync();
 
     let results = (await axios.post('http://127.0.0.1:8000/subgraphs/name/Gnosis/DutchX', {

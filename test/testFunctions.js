@@ -102,7 +102,7 @@ const getAuctionStart = async (ST, BT) => {
 const setupTest = async (
   accounts,
   { DutchExchange: dx, EtherToken: eth, TokenGNO: gno, PriceFeed: oracle, Medianizer: medianizer },
-  { startingETH = toWei('50'), startingGNO = toWei('50'), ethUSDPrice = toWei('1100') }
+  { startingETH = toWei('10000'), startingGNO = toWei('10000'), ethUSDPrice = toWei('1100') }
 ) => {
   // Await ALL Promises for each account setup
 

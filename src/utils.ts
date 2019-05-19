@@ -41,3 +41,7 @@ export function tokenPairId(sellToken: Address, buyToken: Address): string {
 export function orderId(transactionHash: Bytes, token: Address): string {
   return transactionHash.toHex() + '-' + token.toHex();
 }
+
+export function tokenAuctionBalanceId(trader: Address, auctionId: string): string {
+  return trader.toHex() + '-' + auctionId;
+}

@@ -1,6 +1,6 @@
 import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-import { auctionId, add256 } from './utils';
-import { AuctionStartScheduled } from './types/DutchExchange/DutchExchange';
+import { auctionId, add256, zeroAsBigInt, tokenPairId } from './utils';
+import { AuctionStartScheduled, DutchExchange } from './types/DutchExchange/DutchExchange';
 import {
   Auction,
   TokenPair,
@@ -13,29 +13,74 @@ import {
 } from './types/schema';
 
 export function handleAuctionStartScheduled(event: AuctionStartScheduled): void {
-  // let params = event.params;
+  // Start both auctions
+  let params = event.params;
 
-  // let auctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
-  // let auction = new Auction(auctionId);
-  // auction.sellToken = params.sellToken;
-  // auction.buyToken = params.buyToken;
-  // auction.auctionIndex = params.auctionIndex;
-  // auction.sellVolume = 0;
-  // auction.buyVolume = 0;
-  // auction.priceNum = 0;
-  // auction.priceDen = 0;
-  // auction.cleared = false;
-  // auction.startTime = params.auctionStart;
-  // auction.clearingTime = 0;
-  // auction.save();
+  let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  if (sellTokenPair == null) {
+    sellTokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
+  }
+  sellTokenPair.sellToken = params.sellToken;
+  sellTokenPair.buyToken = params.buyToken;
+  sellTokenPair.totalSellVolume = zeroAsBigInt;
+  sellTokenPair.totalBuyVolume = zeroAsBigInt;
+  sellTokenPair.listingTime = params.auctionStart;
+  sellTokenPair.listingTransactionHash = event.transaction.hash;
+  sellTokenPair.latestStartTime = params.auctionStart;
+  sellTokenPair.save();
 
-  // let tokenPair = TokenPair.load(add256(params.sellToken, params.buyToken).toHex());
-  // if (tokenPair == null) {
-  //   tokenPair = new TokenPair(add256(params.sellToken, params.buyToken).toHex());
-  //   tokenPair.sellToken = params.sellToken;
-  //   tokenPair.buyToken = params.buyToken;
-  //   tokenPair.totalSellVolume = 0;
-  //   tokenPair.totalBuyVolume = 0;
-  // }
-  // tokenPair.save();
+  let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
+  if (buyTokenPair == null) {
+    buyTokenPair = new TokenPair(tokenPairId(params.buyToken, params.sellToken));
+  }
+  buyTokenPair.sellToken = params.buyToken;
+  buyTokenPair.buyToken = params.sellToken;
+  buyTokenPair.totalSellVolume = zeroAsBigInt;
+  buyTokenPair.totalBuyVolume = zeroAsBigInt;
+  buyTokenPair.listingTime = params.auctionStart;
+  buyTokenPair.listingTransactionHash = event.transaction.hash;
+  buyTokenPair.latestStartTime = params.auctionStart;
+  buyTokenPair.save();
+
+  // Initial funding Trader, will be missing from Auction in this setup
+  let sellAuctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
+  let sellAuction = Auction.load(sellAuctionId);
+  if (sellAuction == null) {
+    sellAuction = new Auction(sellAuctionId);
+    sellAuction.totalFeesPaid = zeroAsBigInt;
+  }
+  sellAuction.sellToken = params.sellToken;
+  sellAuction.buyToken = params.buyToken;
+  sellAuction.auctionIndex = params.auctionIndex;
+  sellAuction.sellVolume = zeroAsBigInt;
+  sellAuction.buyVolume = zeroAsBigInt;
+  sellAuction.priceNum = zeroAsBigInt;
+  sellAuction.priceDen = zeroAsBigInt;
+  sellAuction.cleared = false;
+  sellAuction.startTime = params.auctionStart;
+  sellAuction.clearingTime = zeroAsBigInt;
+  sellAuction.tokenPair = sellTokenPair.id;
+  sellAuction.traders = [];
+  sellAuction.save();
+
+  let buyAuctionId = auctionId(params.buyToken, params.sellToken, params.auctionIndex);
+  let buyAuction = Auction.load(buyAuctionId);
+  if (buyAuction == null) {
+    buyAuction = new Auction(buyAuctionId);
+    buyAuction.totalFeesPaid = zeroAsBigInt;
+  }
+  buyAuction.sellToken = params.buyToken;
+  buyAuction.buyToken = params.sellToken;
+  buyAuction.auctionIndex = params.auctionIndex;
+  buyAuction.sellVolume = zeroAsBigInt;
+  buyAuction.buyVolume = zeroAsBigInt;
+  buyAuction.priceNum = zeroAsBigInt;
+  buyAuction.priceDen = zeroAsBigInt;
+  buyAuction.cleared = false;
+  buyAuction.startTime = params.auctionStart;
+  buyAuction.clearingTime = zeroAsBigInt;
+
+  buyAuction.tokenPair = buyTokenPair.id;
+  buyAuction.traders = [];
+  buyAuction.save();
 }

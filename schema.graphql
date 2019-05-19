@@ -1,16 +1,17 @@
 type Auction @entity {
   id: ID! #identified by sellToken - buyToken + auctionIndex [String]
-  sellToken: Bytes!
-  buyToken: Bytes!
-  sellVolume: BigInt!
+  sellToken: Bytes
+  buyToken: Bytes
+  sellVolume: BigInt
   buyVolume: BigInt!
-  auctionIndex: BigInt!
-  priceNum: BigInt!
-  priceDen: BigInt!
-  cleared: Boolean!
-  startTime: BigInt!
-  clearingTime: BigInt!
-  tokenPair: TokenPair!
+  auctionIndex: BigInt
+  priceNum: BigInt
+  priceDen: BigInt
+  cleared: Boolean
+  startTime: BigInt
+  clearingTime: BigInt
+  tokenPair: TokenPair
+  totalFeesPaid: BigInt
   traders: [Trader!]
   sellOrders: [SellOrder!] @derivedFrom(field: "auction")
   buyOrders: [BuyOrder!] @derivedFrom(field: "auction")
@@ -33,7 +34,6 @@ type SellOrder @entity {
   tokenPair: TokenPair!
   trader: Trader!
   amount: BigInt!
-  fee: BigInt! 
   timestamp: BigInt!
   transactionHash: Bytes!
 }
@@ -44,7 +44,6 @@ type BuyOrder @entity {
   tokenPair: TokenPair!
   trader: Trader!
   amount: BigInt!
-  fee: BigInt
   timestamp: BigInt!
   transactionHash: Bytes!
 }
@@ -58,7 +57,7 @@ type TokenPair @entity {
   listingTime: BigInt!
   latestStartTime: BigInt!
   latestClearTime: BigInt
-  auctions: [Auction!]
+  auctions: [Auction!] @derivedFrom(field: "tokenPair")
   traders: [Trader!]
   currentAuctionIndex: Int 
   listingTransactionHash: Bytes
@@ -90,4 +89,5 @@ type TokenAuctionBalance @entity {
   auction: Auction
   sellTokenBalance: BigInt
   buyTokenBalance: BigInt
+  totalFeesPaid: BigInt
 }
