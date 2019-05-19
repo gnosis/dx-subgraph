@@ -54,8 +54,6 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   sellAuction.auctionIndex = params.auctionIndex;
   sellAuction.sellVolume = zeroAsBigInt;
   sellAuction.buyVolume = zeroAsBigInt;
-  sellAuction.priceNum = zeroAsBigInt;
-  sellAuction.priceDen = zeroAsBigInt;
   sellAuction.cleared = false;
   sellAuction.startTime = params.auctionStart;
   sellAuction.clearingTime = zeroAsBigInt;
@@ -74,8 +72,6 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   buyAuction.auctionIndex = params.auctionIndex;
   buyAuction.sellVolume = zeroAsBigInt;
   buyAuction.buyVolume = zeroAsBigInt;
-  buyAuction.priceNum = zeroAsBigInt;
-  buyAuction.priceDen = zeroAsBigInt;
   buyAuction.cleared = false;
   buyAuction.startTime = params.auctionStart;
   buyAuction.clearingTime = zeroAsBigInt;

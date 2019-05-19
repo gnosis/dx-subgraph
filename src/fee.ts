@@ -1,24 +1,7 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-import {
-  auctionId,
-  tokenPairId,
-  zeroAsBigInt,
-  oneAsBigInt,
-  orderId,
-  tokenAuctionBalanceId
-} from './utils';
-import { Fee, DutchExchange } from './types/DutchExchange/DutchExchange';
+import { auctionId, zeroAsBigInt, tokenAuctionBalanceId } from './utils';
+import { Fee } from './types/DutchExchange/DutchExchange';
 
-import {
-  Auction,
-  TokenPair,
-  Trader,
-  SellOrder,
-  BuyOrder,
-  Token,
-  TokenBalance,
-  TokenAuctionBalance
-} from './types/schema';
+import { Auction, TokenAuctionBalance } from './types/schema';
 
 export function handleFee(event: Fee): void {
   let params = event.params;
@@ -32,8 +15,6 @@ export function handleFee(event: Fee): void {
     );
     auction.sellVolume = zeroAsBigInt;
     auction.buyVolume = zeroAsBigInt;
-    auction.priceNum = zeroAsBigInt;
-    auction.priceDen = zeroAsBigInt;
     auction.cleared = false;
     auction.clearingTime = zeroAsBigInt;
     auction.totalFeesPaid = zeroAsBigInt;

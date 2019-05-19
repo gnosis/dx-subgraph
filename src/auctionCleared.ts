@@ -4,7 +4,7 @@ import {
   AuctionStartScheduled,
   DutchExchange
 } from './types/DutchExchange/DutchExchange';
-import { auctionId } from './utils';
+import { auctionId, add256, zeroAsBigInt, tokenPairId } from './utils';
 import {
   Auction,
   TokenPair,
@@ -17,36 +17,53 @@ import {
 } from './types/schema';
 
 export function handleAuctionCleared(event: AuctionCleared): void {
-  // // for ease of use
-  // let params = event.params;
-  // // get the final price of the tokens (sell / buy) and the clearing time
-  // let dutchExchange = DutchExchange.bind(event.address);
-  // let price = dutchExchange.getPriceInPastAuction(
-  //   params.sellToken,
-  //   params.buyToken,
-  //   params.auctionIndex
-  // );
-  // let clearingTime = dutchExchange.getClearingTime(
-  //   params.sellToken,
-  //   params.buyToken,
-  //   params.auctionIndex
-  // );
-  // // auction should already exist, but if not, create a new one
-  // let auctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
-  // let auction = Auction.load(auctionId);
-  // if (auction == null) {
-  //   auction = new Auction(auctionId);
-  //   auction.sellToken = params.sellToken;
-  //   auction.buyToken = params.buyToken;
-  //   auction.auctionIndex = params.auctionIndex;
-  //   auction.startTime = 0;
-  // }
-  // // assign new values to the entity
-  // auction.sellVolume = params.sellVolume;
-  // auction.buyVolume = params.buyVolume;
-  // auction.priceNum = price.value0;
-  // auction.priceDen = price.value1;
-  // auction.cleared = true;
-  // auction.clearingTime = clearingTime;
-  // auction.save();
+  let params = event.params;
+  let dutchExchange = DutchExchange.bind(event.address);
+
+  let closingPriceOpp = dutchExchange.closingPrices(
+    params.buyToken,
+    params.sellToken,
+    params.auctionIndex
+  );
+
+  let clearingTime = dutchExchange.getClearingTime(
+    params.sellToken,
+    params.buyToken,
+    params.auctionIndex
+  );
+
+  // auction should already exist, but if not, create a new one
+  let sellAuctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
+  let sellAuction = Auction.load(sellAuctionId);
+  sellAuction.auctionIndex = params.auctionIndex;
+  sellAuction.sellVolume = params.sellVolume;
+  sellAuction.buyVolume = params.buyVolume;
+  sellAuction.cleared = true;
+  sellAuction.clearingTime = clearingTime;
+  sellAuction.save();
+
+  let buyAuctionId = auctionId(params.buyToken, params.sellToken, params.auctionIndex);
+  let buyAuction = Auction.load(buyAuctionId);
+  if (buyAuction == null) {
+    buyAuction = new Auction(buyAuctionId);
+    buyAuction.sellToken = params.buyToken;
+    buyAuction.buyToken = params.sellToken;
+  }
+  buyAuction.auctionIndex = params.auctionIndex;
+  buyAuction.sellVolume = closingPriceOpp.value1;
+  buyAuction.buyVolume = closingPriceOpp.value0;
+  buyAuction.cleared = true;
+  buyAuction.clearingTime = clearingTime;
+  buyAuction.save();
+
+  // TokenPair SECTION
+  let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  sellTokenPair.totalSellVolume = sellTokenPair.totalSellVolume.plus(params.sellVolume);
+  sellTokenPair.totalBuyVolume = sellTokenPair.totalBuyVolume.plus(params.buyVolume);
+  sellTokenPair.save();
+
+  let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
+  buyTokenPair.totalSellVolume = buyTokenPair.totalSellVolume.plus(closingPriceOpp.value1);
+  buyTokenPair.totalBuyVolume = buyTokenPair.totalBuyVolume.plus(closingPriceOpp.value0);
+  buyTokenPair.save();
 }
