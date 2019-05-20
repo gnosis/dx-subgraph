@@ -60,11 +60,13 @@ export function handleAuctionCleared(event: AuctionCleared): void {
   sellTokenPair.totalSellVolume = sellTokenPair.totalSellVolume.plus(params.sellVolume);
   sellTokenPair.totalBuyVolume = sellTokenPair.totalBuyVolume.plus(params.buyVolume);
   sellTokenPair.currentAuctionIndex = params.auctionIndex.plus(oneAsBigInt);
+  sellTokenPair.latestClearTime = event.block.timestamp;
   sellTokenPair.save();
 
   let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
   buyTokenPair.totalSellVolume = buyTokenPair.totalSellVolume.plus(closingPriceOpp.value1);
   buyTokenPair.totalBuyVolume = buyTokenPair.totalBuyVolume.plus(closingPriceOpp.value0);
   buyTokenPair.currentAuctionIndex = params.auctionIndex.plus(oneAsBigInt);
+  buyTokenPair.latestClearTime = event.block.timestamp;
   buyTokenPair.save();
 }

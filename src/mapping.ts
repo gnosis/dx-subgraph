@@ -8,5 +8,4 @@ export { handleNewBuyerFundsClaim } from './newBuyerFundsClaim';
 export { handleNewBuyOrder } from './newBuyOrder';
 export { handleNewSellerFundsClaim } from './newSellerFundsClaim';
 export { handleNewSellOrder } from './newSellOrder';
-export { handleNewWithdrawal } from './newWithdrawal';
 export { handleApproval } from './approval';
