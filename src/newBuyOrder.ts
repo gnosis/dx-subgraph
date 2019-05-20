@@ -51,7 +51,20 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   let tokenBuyOrders = token.buyOrders;
   tokenBuyOrders[tokenBuyOrders.length] = buyOrder.id;
   token.buyOrders = tokenBuyOrders;
+  let tokenTraders = token.traders;
+  if (!checkIfValueExistsInArray(token.traders as string[], trader.id)) {
+    tokenTraders[tokenTraders.length] = trader.id;
+    token.traders = tokenTraders;
+  }
   token.save();
+
+  let sellToken = Token.load(params.sellToken.toHex());
+  let sellTokenTraders = sellToken.traders;
+  if (!checkIfValueExistsInArray(sellToken.traders as string[], trader.id)) {
+    sellTokenTraders[sellTokenTraders.length] = trader.id;
+    sellToken.traders = sellTokenTraders;
+  }
+  sellToken.save();
 
   // Add the trader to the auction
   let auction = Auction.load(auctionId(params.sellToken, params.buyToken, params.auctionIndex));
