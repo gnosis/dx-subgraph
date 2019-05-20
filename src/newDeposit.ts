@@ -1,6 +1,6 @@
 import { add256, zeroAsBigInt } from './utils';
 import { NewDeposit } from './types/DutchExchange/DutchExchange';
-import { Trader, Token, TokenBalance } from './types/schema';
+import { Trader, Token } from './types/schema';
 
 export function handleNewDeposit(event: NewDeposit): void {
   let params = event.params;
@@ -22,7 +22,6 @@ export function handleNewDeposit(event: NewDeposit): void {
     token.sellOrders = [];
     token.buyOrders = [];
     token.traders = [];
-    token.tokenBalances = [];
     token.tokenPairs = [];
     token.whitelisted = false;
   }
@@ -30,18 +29,4 @@ export function handleNewDeposit(event: NewDeposit): void {
   tokenTradersMemory[tokenTradersMemory.length] = trader.id;
   token.traders = tokenTradersMemory;
   token.save();
-
-  // TokenBalance SECTION
-  let tokenBalance = TokenBalance.load(add256(from, params.token).toHex());
-  if (tokenBalance == null) {
-    tokenBalance = new TokenBalance(add256(from, params.token).toHex());
-    tokenBalance.trader = trader.id;
-    tokenBalance.token = token.id;
-    tokenBalance.totalDeposited = zeroAsBigInt;
-    tokenBalance.totalWithdrawn = zeroAsBigInt;
-    tokenBalance.balance = zeroAsBigInt;
-  }
-  tokenBalance.totalDeposited = tokenBalance.totalDeposited.plus(params.amount);
-  tokenBalance.balance = tokenBalance.balance.plus(params.amount);
-  tokenBalance.save();
 }

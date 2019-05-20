@@ -17,7 +17,6 @@ import {
   SellOrder,
   BuyOrder,
   Token,
-  TokenBalance,
   TokenAuctionBalance
 } from './types/schema';
 
@@ -25,6 +24,8 @@ export function handleNewSellOrder(event: NewSellOrder): void {
   let params = event.params;
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
+  trader.lastActive = event.block.timestamp;
+  trader.save();
   let auction = Auction.load(auctionId(params.sellToken, params.buyToken, params.auctionIndex));
 
   // Add the SellOrder

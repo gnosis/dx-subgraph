@@ -8,7 +8,6 @@ import {
   SellOrder,
   BuyOrder,
   Token,
-  TokenBalance,
   TokenAuctionBalance
 } from './types/schema';
 

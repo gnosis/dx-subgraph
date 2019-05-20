@@ -17,14 +17,14 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
   if (sellTokenPair == null) {
     sellTokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
-    sellTokenPair.currentAuctionIndex = 1;
+    sellTokenPair.currentAuctionIndex = oneAsBigInt;
   }
   sellTokenPair.save();
 
   let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
   if (buyTokenPair == null) {
     buyTokenPair = new TokenPair(tokenPairId(params.buyToken, params.sellToken));
-    sellTokenPair.currentAuctionIndex = 1;
+    sellTokenPair.currentAuctionIndex = oneAsBigInt;
   }
   buyTokenPair.save();
 

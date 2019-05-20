@@ -8,8 +8,9 @@ import {
   SellOrder,
   BuyOrder,
   Token,
-  TokenBalance,
   TokenAuctionBalance
 } from './types/schema';
 
-export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {}
+export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
+  //
+}

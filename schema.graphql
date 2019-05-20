@@ -19,9 +19,9 @@ type Trader @entity {
   id: ID! # Address
   sellOrders: [SellOrder!] @derivedFrom(field: "trader")
   buyOrders: [BuyOrder!] @derivedFrom(field: "trader")
-  tokenPairsParticipated: [TokenPair!] 
+  tokenPairsParticipated: [TokenPair!] @derivedFrom(field: "traders")
   tokensParticipated: [Token!] @derivedFrom(field: "traders")
-  tokenBalances: [TokenBalance!] @derivedFrom(field: "trader")
+  tokenAuctionBalances: [TokenAuctionBalance!] @derivedFrom(field: "trader")
   firstParticipation: BigInt
   lastActive: BigInt
 }
@@ -66,18 +66,8 @@ type Token @entity {
   sellOrders: [SellOrder!]!
   buyOrders: [BuyOrder!]!
   traders: [Trader!]!
-  tokenBalances: [TokenBalance!]! @derivedFrom(field: "token")
   tokenPairs: [TokenPair!]! 
   whitelisted: Boolean!
-}
-
-type TokenBalance @entity {
-  id: ID! # identified by Trader + Token [String]
-  trader: Trader!
-  token: Token!
-  totalDeposited: BigInt!
-  totalWithdrawn: BigInt!
-  balance: BigInt!
 }
 
 type TokenAuctionBalance @entity {

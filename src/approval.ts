@@ -13,7 +13,6 @@ export function handleApproval(event: Approval): void {
     token.sellOrders = [];
     token.buyOrders = [];
     token.traders = [];
-    token.tokenBalances = [];
     token.tokenPairs = [];
     token.whitelisted = false;
   }
