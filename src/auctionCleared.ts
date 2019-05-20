@@ -4,7 +4,7 @@ import {
   AuctionStartScheduled,
   DutchExchange
 } from './types/DutchExchange/DutchExchange';
-import { auctionId, add256, zeroAsBigInt, tokenPairId } from './utils';
+import { auctionId, add256, zeroAsBigInt, tokenPairId, oneAsBigInt } from './utils';
 import {
   Auction,
   TokenPair,
@@ -60,10 +60,12 @@ export function handleAuctionCleared(event: AuctionCleared): void {
   let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
   sellTokenPair.totalSellVolume = sellTokenPair.totalSellVolume.plus(params.sellVolume);
   sellTokenPair.totalBuyVolume = sellTokenPair.totalBuyVolume.plus(params.buyVolume);
+  sellTokenPair.currentAuctionIndex = params.auctionIndex.plus(oneAsBigInt);
   sellTokenPair.save();
 
   let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
   buyTokenPair.totalSellVolume = buyTokenPair.totalSellVolume.plus(closingPriceOpp.value1);
   buyTokenPair.totalBuyVolume = buyTokenPair.totalBuyVolume.plus(closingPriceOpp.value0);
+  buyTokenPair.currentAuctionIndex = params.auctionIndex.plus(oneAsBigInt);
   buyTokenPair.save();
 }

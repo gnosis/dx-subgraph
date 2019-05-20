@@ -30,6 +30,15 @@ export function bigIntToBytes32(bigInt: BigInt): Bytes {
   return sum;
 }
 
+export function checkIfValueExistsInArray(array: string[], value: string): boolean {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] == value) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function auctionId(sellToken: Address, buyToken: Address, auctionIndex: BigInt): string {
   return sellToken.toHex() + '-' + buyToken.toHex() + '-' + auctionIndex.toString();
 }

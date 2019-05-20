@@ -57,7 +57,7 @@ type TokenPair @entity {
   latestClearTime: BigInt
   auctions: [Auction!] @derivedFrom(field: "tokenPair")
   traders: [Trader!]
-  currentAuctionIndex: Int 
+  currentAuctionIndex: BigInt 
   listingTransactionHash: Bytes
 }
 
@@ -78,7 +78,6 @@ type TokenBalance @entity {
   totalDeposited: BigInt!
   totalWithdrawn: BigInt!
   balance: BigInt!
-  tokenAuctionBalance: [TokenAuctionBalance!]
 }
 
 type TokenAuctionBalance @entity {
