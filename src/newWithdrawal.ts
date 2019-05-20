@@ -11,4 +11,6 @@ import {
   TokenAuctionBalance
 } from './types/schema';
 
-export function handleNewWithdrawal(event: NewWithdrawal): void {}
+export function handleNewWithdrawal(event: NewWithdrawal): void {
+  
+}

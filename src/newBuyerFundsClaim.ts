@@ -1,5 +1,5 @@
 import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-
+import { auctionId, tokenAuctionBalanceId } from './utils';
 import { NewBuyerFundsClaim } from './types/DutchExchange/DutchExchange';
 import {
   Auction,
@@ -10,7 +10,20 @@ import {
   Token,
   TokenAuctionBalance
 } from './types/schema';
+import { zeroAsBigInt } from './utils';
 
 export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
-  //
+  let params = event.params;
+  let from = event.transaction.from;
+  let trader = Trader.load(from.toHex());
+  trader.save();
+
+  // Add the TokenAuctionBalance
+  let tokenAuctionBalanceId = tokenAuctionBalanceId(
+    from,
+    auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+  );
+  let tokenAuctionBalance = TokenAuctionBalance.load(tokenAuctionBalanceId);
+  tokenAuctionBalance.buyTokenBalance = zeroAsBigInt;
+  tokenAuctionBalance.save();
 }

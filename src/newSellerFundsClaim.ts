@@ -21,7 +21,19 @@ import {
 } from './types/schema';
 
 export function handleNewSellerFundsClaim(event: NewSellerFundsClaim): void {
-  // Add to the users token balance
-  // Subtract from the users AuctionTokenBalance
+  let params = event.params;
+  let from = event.transaction.from;
+  let trader = Trader.load(from.toHex());
+  trader.lastActive = event.block.timestamp;
+  trader.save();
+
+  // Set AuctionTokenBalance.sellTokenBalance to 0
+  let tokenAuctionBalanceId = tokenAuctionBalanceId(
+    from,
+    auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+  );
+  let tokenAuctionBalance = TokenAuctionBalance.load(tokenAuctionBalanceId);
+  tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
+  tokenAuctionBalance.save();
   // Perhaps add to a users totalFrts
 }
