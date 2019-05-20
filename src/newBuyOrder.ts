@@ -27,12 +27,19 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   trader.lastActive = event.block.timestamp;
   trader.save();
 
+  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  let tokenPairTraders = tokenPair.traders;
+  if (!checkIfValueExistsInArray(tokenPair.traders as string[], trader.id)) {
+    tokenPairTraders[tokenPairTraders.length] = trader.id;
+    tokenPair.traders = tokenPairTraders;
+    tokenPair.save();
+  }
   // Add the buy order
   let buyOrder = new BuyOrder(orderId(event.transaction.hash, params.buyToken));
   buyOrder.auction = Auction.load(
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)
   ).id;
-  buyOrder.tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken)).id;
+  buyOrder.tokenPair = tokenPair.id;
   buyOrder.trader = Trader.load(from.toHex()).id;
   buyOrder.amount = params.amount;
   buyOrder.timestamp = event.block.timestamp;

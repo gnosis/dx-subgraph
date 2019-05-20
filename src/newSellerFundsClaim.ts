@@ -24,7 +24,7 @@ export function handleNewSellerFundsClaim(event: NewSellerFundsClaim): void {
   let params = event.params;
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
-  trader.lastActive = event.block.timestamp;
+  trader.totalFrts = trader.totalFrts.plus(params.frtsIssued);
   trader.save();
 
   // Set AuctionTokenBalance.sellTokenBalance to 0
@@ -35,5 +35,4 @@ export function handleNewSellerFundsClaim(event: NewSellerFundsClaim): void {
   let tokenAuctionBalance = TokenAuctionBalance.load(tokenAuctionBalanceId);
   tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
   tokenAuctionBalance.save();
-  // Perhaps add to a users totalFrts
 }

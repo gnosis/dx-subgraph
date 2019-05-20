@@ -24,6 +24,7 @@ type Trader @entity {
   tokenAuctionBalances: [TokenAuctionBalance!] @derivedFrom(field: "trader")
   firstParticipation: BigInt
   lastActive: BigInt
+  totalFrts: BigInt
 }
 
 type SellOrder @entity {

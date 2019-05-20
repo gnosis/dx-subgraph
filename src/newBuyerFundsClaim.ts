@@ -16,9 +16,10 @@ export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
   let params = event.params;
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
+  trader.totalFrts = trader.totalFrts.plus(params.frtsIssued);
   trader.save();
 
-  // Add the TokenAuctionBalance
+  // Set TokenAuctionBalance.buyTokenBalance to 0
   let tokenAuctionBalanceId = tokenAuctionBalanceId(
     from,
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)

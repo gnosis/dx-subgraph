@@ -11,6 +11,7 @@ export function handleNewDeposit(event: NewDeposit): void {
   if (trader == null) {
     trader = new Trader(from.toHex());
     trader.firstParticipation = event.block.timestamp;
+    trader.totalFrts = zeroAsBigInt;
   }
   trader.lastActive = event.block.timestamp;
   trader.save();
