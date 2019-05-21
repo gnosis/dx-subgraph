@@ -1,4 +1,4 @@
-import { add256, zeroAsBigInt } from './utils';
+import { add256, zeroAsBigInt, checkIfValueExistsInArray, depositId } from './utils';
 import { NewDeposit } from './types/DutchExchange/DutchExchange';
 import { Trader, Token } from './types/schema';
 
@@ -12,6 +12,11 @@ export function handleNewDeposit(event: NewDeposit): void {
     trader = new Trader(from.toHex());
     trader.firstParticipation = event.block.timestamp;
     trader.totalFrts = zeroAsBigInt;
+    trader.sellOrders = [];
+    trader.buyOrders = [];
+    trader.tokenPairsParticipated = [];
+    trader.tokensParticipated = [];
+    trader.tokenAuctionBalances = [];
   }
   trader.lastActive = event.block.timestamp;
   trader.save();
@@ -27,7 +32,9 @@ export function handleNewDeposit(event: NewDeposit): void {
     token.whitelisted = false;
   }
   let tokenTradersMemory = token.traders;
-  tokenTradersMemory[tokenTradersMemory.length] = trader.id;
-  token.traders = tokenTradersMemory;
+  if (!checkIfValueExistsInArray(tokenTradersMemory, trader.id)) {
+    tokenTradersMemory[tokenTradersMemory.length] = trader.id;
+    token.traders = tokenTradersMemory;
+  }
   token.save();
 }

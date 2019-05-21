@@ -49,12 +49,12 @@ type BuyOrder @entity {
 
 type TokenPair @entity {
   id: ID! # identified by the sell address + buy address [Sring]
-  sellToken: Bytes!
-  buyToken: Bytes!
-  totalSellVolume: BigInt!
-  totalBuyVolume: BigInt!
-  listingTime: BigInt!
-  latestStartTime: BigInt!
+  sellToken: Bytes
+  buyToken: Bytes
+  totalSellVolume: BigInt
+  totalBuyVolume: BigInt
+  listingTime: BigInt
+  latestStartTime: BigInt
   latestClearTime: BigInt
   auctions: [Auction!] @derivedFrom(field: "tokenPair")
   traders: [Trader!]
@@ -70,6 +70,16 @@ type Token @entity {
   tokenPairs: [TokenPair!]! 
   whitelisted: Boolean!
 }
+
+# type TokenBalance @entity {
+#  id: ID! # identified by Trader + Token 
+#  trader: Trader!
+#  token: Token!
+#  totalDeposited: BigInt
+#  totalWithdrawn: BigInt
+#  balance: BigInt
+#  tokenAuctionBalance: [TokenAuctionBalance!]
+# }
 
 type TokenAuctionBalance @entity {
   id: ID! # Identified by Trader + Auction [String]

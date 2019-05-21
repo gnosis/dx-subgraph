@@ -28,11 +28,14 @@ export function handleNewSellerFundsClaim(event: NewSellerFundsClaim): void {
   trader.save();
 
   // Set AuctionTokenBalance.sellTokenBalance to 0
-  let tokenAuctionBalanceId = tokenAuctionBalanceId(
+  let auctionBalanceId = tokenAuctionBalanceId(
     from,
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)
   );
-  let tokenAuctionBalance = TokenAuctionBalance.load(tokenAuctionBalanceId);
+  let tokenAuctionBalance = TokenAuctionBalance.load(auctionBalanceId);
+  if (tokenAuctionBalance == null) {
+    tokenAuctionBalance = new TokenAuctionBalance(auctionBalanceId);
+  }
   tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
   tokenAuctionBalance.save();
 }

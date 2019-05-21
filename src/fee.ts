@@ -19,6 +19,8 @@ export function handleFee(event: Fee): void {
     auction.clearingTime = zeroAsBigInt;
     auction.totalFeesPaid = zeroAsBigInt;
     auction.traders = [];
+    auction.sellOrders = [];
+    auction.buyOrders = [];
   }
   auction.totalFeesPaid = auction.totalFeesPaid.plus(params.fee);
   auction.save();

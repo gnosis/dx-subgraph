@@ -54,3 +54,7 @@ export function orderId(transactionHash: Bytes, token: Address): string {
 export function tokenAuctionBalanceId(trader: Address, auctionId: string): string {
   return trader.toHex() + '-' + auctionId;
 }
+
+export function depositId(transactionHash: Bytes, user: Address, token: Address): string {
+  return transactionHash.toHex() + '-' + user.toHex() + '-' + token.toHex();
+}

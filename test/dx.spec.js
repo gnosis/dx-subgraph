@@ -93,13 +93,7 @@ contract('DutchExchange', accounts => {
   });
 
   it('DutchExchange', async () => {
-    // Add a token pair
-    let threshhold = await dx.thresholdNewTokenPair();
     await addTokenPair(seller1);
-    let sellerBalance1 = await dx.sellerBalances(eth.address, gno.address, 1, seller1);
-    console.log('TCL: sellerBalance1', sellerBalance1);
-    let sellerBalance2 = await dx.sellerBalances(gno.address, eth.address, 1, seller1);
-    console.log('TCL: sellerBalance2', sellerBalance2);
     await waitForGraphSync();
 
     let results = (await axios.post('http://127.0.0.1:8000/subgraphs/name/Gnosis/DutchX', {

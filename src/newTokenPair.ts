@@ -14,6 +14,16 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   let dx = DutchExchange.bind(event.address);
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
+  if (trader == null) {
+    trader = new Trader(from.toHex());
+    trader.totalFrts = zeroAsBigInt;
+    trader.sellOrders = [];
+    trader.buyOrders = [];
+    trader.tokenPairsParticipated = [];
+    trader.tokensParticipated = [];
+    trader.tokenAuctionBalances = [];
+  }
+  trader.save();
   let params = event.params;
 
   let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
@@ -21,8 +31,11 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     sellTokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
     sellTokenPair.currentAuctionIndex = oneAsBigInt;
     sellTokenPair.traders = [];
+    sellTokenPair.auctions = [];
   }
-  sellTokenPair.traders = [Trader.load(from.toHex()).id];
+  let sellTokenPairTraders = sellTokenPair.traders;
+  sellTokenPairTraders[sellTokenPairTraders.length] = trader.id;
+  sellTokenPair.traders = sellTokenPairTraders;
   sellTokenPair.save();
 
   let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
@@ -30,13 +43,19 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     buyTokenPair = new TokenPair(tokenPairId(params.buyToken, params.sellToken));
     buyTokenPair.currentAuctionIndex = oneAsBigInt;
     buyTokenPair.traders = [];
+    buyTokenPair.auctions = [];
   }
-  buyTokenPair.traders = [Trader.load(from.toHex()).id];
+  let buyTokenPairTraders = buyTokenPair.traders;
+  buyTokenPairTraders[buyTokenPairTraders.length] = trader.id;
+  buyTokenPair.traders = buyTokenPairTraders;
   buyTokenPair.save();
 
   let sellAuction = Auction.load(auctionId(params.sellToken, params.buyToken, zeroAsBigInt));
   if (sellAuction == null) {
     sellAuction = new Auction(auctionId(params.sellToken, params.buyToken, zeroAsBigInt));
+    sellAuction.traders = [];
+    sellAuction.sellOrders = [];
+    sellAuction.buyOrders = [];
   }
   sellAuction.sellToken = params.sellToken;
   sellAuction.buyToken = params.buyToken;
@@ -50,6 +69,9 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   let buyAuction = Auction.load(auctionId(params.buyToken, params.sellToken, zeroAsBigInt));
   if (buyAuction == null) {
     buyAuction = new Auction(auctionId(params.buyToken, params.sellToken, zeroAsBigInt));
+    buyAuction.traders = [];
+    buyAuction.sellOrders = [];
+    buyAuction.buyOrders = [];
   }
   buyAuction.sellToken = params.buyToken;
   buyAuction.buyToken = params.sellToken;
@@ -75,11 +97,23 @@ export function handleNewTokenPair(event: NewTokenPair): void {
 
   // Add initial Sell tokens that aren't accounted for in other events to the mappings
   let sellAuctionOne = Auction.load(auctionId(params.sellToken, params.buyToken, oneAsBigInt));
+  if (sellAuctionOne == null) {
+    sellAuctionOne = new Auction(auctionId(params.sellToken, params.buyToken, oneAsBigInt));
+    sellAuctionOne.traders = [];
+    sellAuctionOne.sellOrders = [];
+    sellAuctionOne.buyOrders = [];
+  }
   let sellAuctionOneTraders = sellAuctionOne.traders;
   sellAuctionOneTraders[sellAuctionOneTraders.length] = Trader.load(from.toHex()).id;
   sellAuctionOne.traders = sellAuctionOneTraders;
   sellAuctionOne.save();
   let buyAuctionOne = Auction.load(auctionId(params.buyToken, params.sellToken, oneAsBigInt));
+  if (buyAuctionOne == null) {
+    buyAuctionOne = new Auction(auctionId(params.buyToken, params.sellToken, oneAsBigInt));
+    buyAuctionOne.traders = [];
+    buyAuctionOne.sellOrders = [];
+    buyAuctionOne.buyOrders = [];
+  }
   let buyAuctionOneTraders = sellAuctionOne.traders;
   buyAuctionOneTraders[buyAuctionOneTraders.length] = Trader.load(from.toHex()).id;
   buyAuctionOne.traders = buyAuctionOneTraders;
@@ -104,6 +138,14 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   sellOrderBuyToken.save();
 
   let sellToken = Token.load(params.sellToken.toHex());
+  if (sellToken == null) {
+    sellToken = new Token(params.sellToken.toHex());
+    sellToken.sellOrders = [];
+    sellToken.buyOrders = [];
+    sellToken.traders = [];
+    sellToken.tokenPairs = [];
+    sellToken.whitelisted = false;
+  }
   let sellTokenTokenPairs = sellToken.tokenPairs;
   sellTokenTokenPairs[sellTokenTokenPairs.length] = sellTokenPair.id;
   sellTokenTokenPairs[sellTokenTokenPairs.length + 1] = buyTokenPair.id;
@@ -119,6 +161,14 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   sellToken.save();
 
   let buyToken = Token.load(params.buyToken.toHex());
+  if (buyToken == null) {
+    buyToken = new Token(params.buyToken.toHex());
+    buyToken.sellOrders = [];
+    buyToken.buyOrders = [];
+    buyToken.traders = [];
+    buyToken.tokenPairs = [];
+    buyToken.whitelisted = false;
+  }
   let buyTokenTokenPairs = buyToken.tokenPairs;
   buyTokenTokenPairs[buyTokenTokenPairs.length] = sellTokenPair.id;
   buyTokenTokenPairs[buyTokenTokenPairs.length + 1] = buyTokenPair.id;

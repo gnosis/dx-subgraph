@@ -24,8 +24,17 @@ export function handleNewSellOrder(event: NewSellOrder): void {
   let params = event.params;
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
+  if (trader == null) {
+    trader = new Trader(from.toHex());
+    trader.sellOrders = [];
+    trader.buyOrders = [];
+    trader.tokensParticipated = [];
+    trader.tokenPairsParticipated = [];
+    trader.tokenAuctionBalances = [];
+  }
   trader.lastActive = event.block.timestamp;
   trader.save();
+  
   let auction = Auction.load(auctionId(params.sellToken, params.buyToken, params.auctionIndex));
 
   let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));

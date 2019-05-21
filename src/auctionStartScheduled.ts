@@ -18,6 +18,8 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
   if (sellTokenPair == null) {
     sellTokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
+    sellTokenPair.traders = [];
+    sellTokenPair.auctions = [];
   }
   sellTokenPair.sellToken = params.sellToken;
   sellTokenPair.buyToken = params.buyToken;
@@ -31,6 +33,8 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
   if (buyTokenPair == null) {
     buyTokenPair = new TokenPair(tokenPairId(params.buyToken, params.sellToken));
+    buyTokenPair.traders = [];
+    buyTokenPair.auctions = [];
   }
   buyTokenPair.sellToken = params.buyToken;
   buyTokenPair.buyToken = params.sellToken;
@@ -47,6 +51,9 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   if (sellAuction == null) {
     sellAuction = new Auction(sellAuctionId);
     sellAuction.totalFeesPaid = zeroAsBigInt;
+    sellAuction.traders = [];
+    sellAuction.sellOrders = [];
+    sellAuction.buyOrders = [];
   }
   sellAuction.sellToken = params.sellToken;
   sellAuction.buyToken = params.buyToken;
@@ -65,6 +72,9 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   if (buyAuction == null) {
     buyAuction = new Auction(buyAuctionId);
     buyAuction.totalFeesPaid = zeroAsBigInt;
+    buyAuction.traders = [];
+    buyAuction.sellOrders = [];
+    buyAuction.buyOrders = [];
   }
   buyAuction.sellToken = params.buyToken;
   buyAuction.buyToken = params.sellToken;
