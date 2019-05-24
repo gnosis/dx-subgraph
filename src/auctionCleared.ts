@@ -43,11 +43,6 @@ export function handleAuctionCleared(event: AuctionCleared): void {
 
   let buyAuctionId = auctionId(params.buyToken, params.sellToken, params.auctionIndex);
   let buyAuction = Auction.load(buyAuctionId);
-  if (buyAuction == null) {
-    buyAuction = new Auction(buyAuctionId);
-    buyAuction.sellToken = params.buyToken;
-    buyAuction.buyToken = params.sellToken;
-  }
   buyAuction.auctionIndex = params.auctionIndex;
   buyAuction.sellVolume = closingPriceOpp.value1;
   buyAuction.buyVolume = closingPriceOpp.value0;
@@ -56,17 +51,8 @@ export function handleAuctionCleared(event: AuctionCleared): void {
   buyAuction.save();
 
   // TokenPair SECTION
-  let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
-  sellTokenPair.totalSellVolume = sellTokenPair.totalSellVolume.plus(params.sellVolume);
-  sellTokenPair.totalBuyVolume = sellTokenPair.totalBuyVolume.plus(params.buyVolume);
-  sellTokenPair.currentAuctionIndex = params.auctionIndex.plus(oneAsBigInt);
-  sellTokenPair.latestClearTime = event.block.timestamp;
-  sellTokenPair.save();
-
-  let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
-  buyTokenPair.totalSellVolume = buyTokenPair.totalSellVolume.plus(closingPriceOpp.value1);
-  buyTokenPair.totalBuyVolume = buyTokenPair.totalBuyVolume.plus(closingPriceOpp.value0);
-  buyTokenPair.currentAuctionIndex = params.auctionIndex.plus(oneAsBigInt);
-  buyTokenPair.latestClearTime = event.block.timestamp;
-  buyTokenPair.save();
+  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  tokenPair.currentAuctionIndex += 1;
+  tokenPair.latestClearTime = event.block.timestamp;
+  tokenPair.save();
 }

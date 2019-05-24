@@ -49,16 +49,14 @@ type BuyOrder @entity {
 
 type TokenPair @entity {
   id: ID! # identified by the sell address + buy address [Sring]
-  sellToken: Bytes
-  buyToken: Bytes
-  totalSellVolume: BigInt
-  totalBuyVolume: BigInt
-  listingTime: BigInt
+  token1: Bytes!
+  token2: Bytes!
   latestStartTime: BigInt
   latestClearTime: BigInt
   auctions: [Auction!] @derivedFrom(field: "tokenPair")
   traders: [Trader!]
-  currentAuctionIndex: BigInt 
+  currentAuctionIndex: Int 
+  listingTimestamp: BigInt
   listingTransactionHash: Bytes
 }
 

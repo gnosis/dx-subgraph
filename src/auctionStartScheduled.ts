@@ -14,36 +14,25 @@ import {
 export function handleAuctionStartScheduled(event: AuctionStartScheduled): void {
   // Start both auctions
   let params = event.params;
+  let from = event.transaction.from;
+  let trader = Trader.load(from.toHex());
 
-  let sellTokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
-  if (sellTokenPair == null) {
-    sellTokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
-    sellTokenPair.traders = [];
-    sellTokenPair.auctions = [];
+  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  if (tokenPair == null) {
+    tokenPair.token1 = params.sellToken;
+    tokenPair.token2 = params.buyToken;
+    tokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
+    tokenPair.currentAuctionIndex = 0;
+    tokenPair.auctions = [];
+    tokenPair.traders = [trader.id];
+    tokenPair.listingTimestamp = event.block.timestamp;
+    tokenPair.listingTransactionHash = event.transaction.hash;
   }
-  sellTokenPair.sellToken = params.sellToken;
-  sellTokenPair.buyToken = params.buyToken;
-  sellTokenPair.totalSellVolume = zeroAsBigInt;
-  sellTokenPair.totalBuyVolume = zeroAsBigInt;
-  sellTokenPair.listingTime = params.auctionStart;
-  sellTokenPair.listingTransactionHash = event.transaction.hash;
-  sellTokenPair.latestStartTime = params.auctionStart;
-  sellTokenPair.save();
-
-  let buyTokenPair = TokenPair.load(tokenPairId(params.buyToken, params.sellToken));
-  if (buyTokenPair == null) {
-    buyTokenPair = new TokenPair(tokenPairId(params.buyToken, params.sellToken));
-    buyTokenPair.traders = [];
-    buyTokenPair.auctions = [];
-  }
-  buyTokenPair.sellToken = params.buyToken;
-  buyTokenPair.buyToken = params.sellToken;
-  buyTokenPair.totalSellVolume = zeroAsBigInt;
-  buyTokenPair.totalBuyVolume = zeroAsBigInt;
-  buyTokenPair.listingTime = params.auctionStart;
-  buyTokenPair.listingTransactionHash = event.transaction.hash;
-  buyTokenPair.latestStartTime = params.auctionStart;
-  buyTokenPair.save();
+  tokenPair.latestStartTime = params.auctionStart;
+  let tokenPairTraders = tokenPair.traders;
+  tokenPairTraders[tokenPairTraders.length] = trader.id;
+  tokenPair.traders = tokenPairTraders;
+  tokenPair.save();
 
   // Initial funding Trader, will be missing from Auction in this setup
   let sellAuctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
@@ -63,7 +52,7 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   sellAuction.cleared = false;
   sellAuction.startTime = params.auctionStart;
   sellAuction.clearingTime = zeroAsBigInt;
-  sellAuction.tokenPair = sellTokenPair.id;
+  sellAuction.tokenPair = tokenPair.id;
   sellAuction.traders = [];
   sellAuction.save();
 
@@ -85,7 +74,7 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   buyAuction.startTime = params.auctionStart;
   buyAuction.clearingTime = zeroAsBigInt;
 
-  buyAuction.tokenPair = buyTokenPair.id;
+  buyAuction.tokenPair = tokenPair.id;
   buyAuction.traders = [];
   buyAuction.save();
 }

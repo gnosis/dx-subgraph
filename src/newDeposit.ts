@@ -11,7 +11,7 @@ export function handleNewDeposit(event: NewDeposit): void {
   let trader = Trader.load(from.toHex());
   if (trader == null) {
     trader = new Trader(from.toHex());
-    trader.firstParticipation = event.block.timestamp;
+    trader.firstParticipation = zeroAsBigInt;
     trader.totalFrts = zeroAsBigInt;
     trader.sellOrders = [];
     trader.buyOrders = [];
@@ -20,7 +20,6 @@ export function handleNewDeposit(event: NewDeposit): void {
     trader.tokenAuctionBalances = [];
     trader.firstParticipation = zeroAsBigInt;
   }
-  trader.lastActive = event.block.timestamp;
   trader.save();
 
   // Token SECTION

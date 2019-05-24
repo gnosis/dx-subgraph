@@ -24,16 +24,9 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   let params = event.params;
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
-  if (trader == null) {
-    trader = new Trader(from.toHex());
-    trader.sellOrders = [];
-    trader.buyOrders = [];
-    trader.tokensParticipated = [];
-    trader.tokenPairsParticipated = [];
-    trader.tokenAuctionBalances = [];
-  }
-  if (trader.firstParticipation == zeroAsBigInt) {
-    trader.firstParticipation = event.block.timestamp;
+  let traderParticipation = trader.firstParticipation;
+  if (traderParticipation.equals(zeroAsBigInt)) {
+    traderParticipation = event.block.timestamp;
   }
   trader.lastActive = event.block.timestamp;
   trader.save();

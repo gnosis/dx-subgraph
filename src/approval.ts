@@ -1,5 +1,3 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-
 import { Approval } from './types/DutchExchange/DutchExchange';
 import { Token } from './types/schema';
 

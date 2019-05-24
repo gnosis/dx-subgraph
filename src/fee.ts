@@ -42,4 +42,6 @@ export function handleFee(event: Fee): void {
   }
   tokenAuctionBalance.totalFeesPaid = tokenAuctionBalance.totalFeesPaid.plus(params.fee);
   tokenAuctionBalance.save();
+
+
 }
