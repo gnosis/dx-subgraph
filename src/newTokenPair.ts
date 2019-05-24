@@ -24,6 +24,9 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     trader.tokensParticipated = [];
     trader.tokenAuctionBalances = [];
   }
+  if (trader.firstParticipation == zeroAsBigInt) {
+    trader.firstParticipation = event.block.timestamp;
+  }
   trader.save();
   let params = event.params;
 

@@ -1,6 +1,7 @@
-import { add256, zeroAsBigInt, checkIfValueExistsInArray, transactionId } from './utils';
+import { zeroAsBigInt, checkIfValueExistsInArray, transactionId } from './utils';
 import { NewWithdrawal } from './types/DutchExchange/DutchExchange';
 import { Trader, Token, Withdrawal } from './types/schema';
+import { ByteArray } from '@graphprotocol/graph-ts';
 
 export function handleNewWithdrawal(event: NewWithdrawal): void {
   let params = event.params;
@@ -39,5 +40,13 @@ export function handleNewWithdrawal(event: NewWithdrawal): void {
   token.save();
 
   // Withdrawal SECTION
-  // let withdrawal = new Withdrawal(depo);
+  let withdrawal = new Withdrawal(
+    transactionId(event.transaction.hash, params.token, params.amount as ByteArray)
+  );
+  withdrawal.trader = trader.id;
+  withdrawal.token = token.id;
+  withdrawal.amount = params.amount;
+  withdrawal.timestamp = event.block.timestamp;
+  withdrawal.transactionHash = event.transaction.hash;
+  withdrawal.save();
 }

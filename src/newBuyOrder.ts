@@ -32,6 +32,9 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
     trader.tokenPairsParticipated = [];
     trader.tokenAuctionBalances = [];
   }
+  if (trader.firstParticipation == zeroAsBigInt) {
+    trader.firstParticipation = event.block.timestamp;
+  }
   trader.lastActive = event.block.timestamp;
   trader.save();
 
