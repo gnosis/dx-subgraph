@@ -1,28 +1,29 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
+import { ByteArray } from '@graphprotocol/graph-ts';
 import {
   auctionId,
-  add256,
   zeroAsBigInt,
   tokenPairId,
-  oneAsBigInt,
   transactionId,
   checkIfValueExistsInArray,
-  tokenAuctionBalanceId
+  tokenAuctionBalanceId,
+  tokenBalanceId
 } from './utils';
 import { NewBuyOrder } from './types/DutchExchange/DutchExchange';
 import {
   Auction,
   TokenPair,
   Trader,
-  SellOrder,
   BuyOrder,
   Token,
-  TokenAuctionBalance
+  TokenAuctionBalance,
+  TokenBalance
 } from './types/schema';
 
 export function handleNewBuyOrder(event: NewBuyOrder): void {
   let params = event.params;
   let from = event.transaction.from;
+
+  // Trader SECTION
   let trader = Trader.load(from.toHex());
   let traderParticipation = trader.firstParticipation;
   if (traderParticipation.equals(zeroAsBigInt)) {
@@ -31,6 +32,7 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   trader.lastActive = event.block.timestamp;
   trader.save();
 
+  // TokenPair SECTION
   let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
   let tokenPairTraders = tokenPair.traders;
   if (!checkIfValueExistsInArray(tokenPair.traders as string[], trader.id)) {
@@ -38,7 +40,8 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
     tokenPair.traders = tokenPairTraders;
     tokenPair.save();
   }
-  // Add the buy order
+
+  // BuyOrder SECTION
   let buyOrder = new BuyOrder(
     transactionId(event.transaction.hash, params.buyToken, params.amount as ByteArray)
   );
@@ -52,7 +55,7 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   buyOrder.transactionHash = event.transaction.hash;
   buyOrder.save();
 
-  // Add the buy order to Token.buyOrders
+  // Token SECTION
   let token = Token.load(params.buyToken.toHex());
   let tokenBuyOrders = token.buyOrders;
   tokenBuyOrders[tokenBuyOrders.length] = buyOrder.id;
@@ -72,7 +75,7 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   }
   sellToken.save();
 
-  // Add the trader to the auction
+  // Auction SECTION
   let auction = Auction.load(auctionId(params.sellToken, params.buyToken, params.auctionIndex));
   let auctionTraders = auction.traders;
   if (!checkIfValueExistsInArray(auction.traders as string[], trader.id)) {
@@ -81,14 +84,19 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
     auction.save();
   }
 
-  // Add the TokenAuctionBalance
-  let tokenAuctionBalanceId = tokenAuctionBalanceId(
-    from,
-    auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+  // TokenBalance SECTION
+  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.buyToken));
+  tokenBalance.balance = tokenBalance.balance.minus(params.amount);
+  tokenBalance.save();
+
+  // TokenAuctionBalance SECTION
+  let tokenAuctionBalance = TokenAuctionBalance.load(
+    tokenAuctionBalanceId(from, auctionId(params.sellToken, params.buyToken, params.auctionIndex))
   );
-  let tokenAuctionBalance = TokenAuctionBalance.load(tokenAuctionBalanceId);
   if (tokenAuctionBalance == null) {
-    tokenAuctionBalance = new TokenAuctionBalance(tokenAuctionBalanceId);
+    tokenAuctionBalance = new TokenAuctionBalance(
+      tokenAuctionBalanceId(from, auctionId(params.sellToken, params.buyToken, params.auctionIndex))
+    );
     tokenAuctionBalance.trader = trader.id;
     tokenAuctionBalance.auction = auction.id;
     tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;

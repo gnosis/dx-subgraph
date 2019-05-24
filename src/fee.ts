@@ -1,11 +1,13 @@
-import { auctionId, zeroAsBigInt, tokenAuctionBalanceId } from './utils';
+import { auctionId, zeroAsBigInt, tokenBalanceId, tokenAuctionBalanceId } from './utils';
 import { Fee } from './types/DutchExchange/DutchExchange';
 
-import { Auction, TokenAuctionBalance } from './types/schema';
+import { Auction, TokenAuctionBalance, TokenBalance } from './types/schema';
 
 export function handleFee(event: Fee): void {
   let params = event.params;
+  let from = event.transaction.from;
 
+  // Auction SECTION
   let auction = Auction.load(
     auctionId(params.primaryToken, params.secondarToken, params.auctionIndex)
   );
@@ -25,6 +27,12 @@ export function handleFee(event: Fee): void {
   auction.totalFeesPaid = auction.totalFeesPaid.plus(params.fee);
   auction.save();
 
+  // TokenBalance SECTION
+  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.primaryToken));
+  tokenBalance.balance = tokenBalance.balance.minus(params.fee);
+  tokenBalance.save();
+
+  // TokenAuctionBalance SECTION
   let tokenAuctionBalance = TokenAuctionBalance.load(
     tokenAuctionBalanceId(
       params.user,
@@ -42,6 +50,4 @@ export function handleFee(event: Fee): void {
   }
   tokenAuctionBalance.totalFeesPaid = tokenAuctionBalance.totalFeesPaid.plus(params.fee);
   tokenAuctionBalance.save();
-
-
 }

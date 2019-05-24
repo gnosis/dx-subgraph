@@ -1,22 +1,13 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-import { auctionId, add256, zeroAsBigInt, tokenPairId } from './utils';
-import { AuctionStartScheduled, DutchExchange } from './types/DutchExchange/DutchExchange';
-import {
-  Auction,
-  TokenPair,
-  Trader,
-  SellOrder,
-  BuyOrder,
-  Token,
-  TokenAuctionBalance
-} from './types/schema';
+import { auctionId, zeroAsBigInt, tokenPairId } from './utils';
+import { AuctionStartScheduled } from './types/DutchExchange/DutchExchange';
+import { Auction, TokenPair, Trader } from './types/schema';
 
 export function handleAuctionStartScheduled(event: AuctionStartScheduled): void {
-  // Start both auctions
   let params = event.params;
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
 
+  // TokenPair SECTION
   let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
   if (tokenPair == null) {
     tokenPair.token1 = params.sellToken;
@@ -34,7 +25,7 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   tokenPair.traders = tokenPairTraders;
   tokenPair.save();
 
-  // Initial funding Trader, will be missing from Auction in this setup
+  // Auction SECTION
   let sellAuctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
   let sellAuction = Auction.load(sellAuctionId);
   if (sellAuction == null) {

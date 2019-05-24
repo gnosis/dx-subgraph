@@ -1,25 +1,23 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
 import { auctionId, tokenAuctionBalanceId } from './utils';
 import { NewBuyerFundsClaim } from './types/DutchExchange/DutchExchange';
-import {
-  Auction,
-  TokenPair,
-  Trader,
-  SellOrder,
-  BuyOrder,
-  Token,
-  TokenAuctionBalance
-} from './types/schema';
-import { zeroAsBigInt } from './utils';
+import { Trader, TokenBalance, TokenAuctionBalance } from './types/schema';
+import { zeroAsBigInt, tokenBalanceId } from './utils';
 
 export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
   let params = event.params;
+
+  // Trader SECTION
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
   trader.totalFrts = trader.totalFrts.plus(params.frtsIssued);
   trader.save();
 
-  // Set TokenAuctionBalance.buyTokenBalance to 0
+  // TokenBalance SECTION
+  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.sellToken));
+  tokenBalance.balance = tokenBalance.balance.plus(params.amount);
+  tokenBalance.save();
+
+  // TokenAuctionBalance SECTION
   let auctionBalanceId = tokenAuctionBalanceId(
     from,
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)

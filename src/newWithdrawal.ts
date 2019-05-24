@@ -1,4 +1,4 @@
-import { zeroAsBigInt, checkIfValueExistsInArray, transactionId } from './utils';
+import { zeroAsBigInt, checkIfValueExistsInArray, transactionId, tokenBalanceId } from './utils';
 import { NewWithdrawal } from './types/DutchExchange/DutchExchange';
 import { Trader, Token, Withdrawal } from './types/schema';
 import { ByteArray } from '@graphprotocol/graph-ts';
@@ -49,4 +49,18 @@ export function handleNewWithdrawal(event: NewWithdrawal): void {
   withdrawal.timestamp = event.block.timestamp;
   withdrawal.transactionHash = event.transaction.hash;
   withdrawal.save();
+
+  // TokenBalance SECTION
+  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.token));
+  if (tokenBalance == null) {
+    tokenBalance = new TokenBalance(tokenBalanceId(from, params.token));
+    tokenBalance.trader = trader.id;
+    tokenBalance.token = token.id;
+    tokenBalance.totalDeposited = zeroAsBigInt;
+    tokenBalance.totalWithdrawn = zeroAsBigInt;
+    tokenBalance.balance = zeroAsBigInt;
+  }
+  tokenBalance.totalWithdrawn = tokenBalance.totalWithdrawn.plus(params.amount);
+  tokenBalance.balance = tokenBalance.balance.minus(params.amount);
+  tokenBalance.save();
 }

@@ -76,7 +76,6 @@ type TokenBalance @entity {
   totalDeposited: BigInt
   totalWithdrawn: BigInt
   balance: BigInt
-  tokenAuctionBalance: [TokenAuctionBalance!]
 }
 
 type TokenAuctionBalance @entity {

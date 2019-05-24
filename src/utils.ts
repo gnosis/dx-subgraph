@@ -58,6 +58,10 @@ export function tokenPairId(sellToken: Address, buyToken: Address): string {
   return sellToken.toHex() + '-' + buyToken.toHex();
 }
 
+export function tokenBalanceId(trader: Address, token: Address): string {
+  return trader.toHex() + '-' + token.toHex();
+}
+
 export function tokenAuctionBalanceId(trader: Address, auctionId: string): string {
   return trader.toHex() + '-' + auctionId;
 }

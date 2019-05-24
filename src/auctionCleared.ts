@@ -1,19 +1,6 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-import {
-  AuctionCleared,
-  AuctionStartScheduled,
-  DutchExchange
-} from './types/DutchExchange/DutchExchange';
-import { auctionId, add256, zeroAsBigInt, tokenPairId, oneAsBigInt } from './utils';
-import {
-  Auction,
-  TokenPair,
-  Trader,
-  SellOrder,
-  BuyOrder,
-  Token,
-  TokenAuctionBalance
-} from './types/schema';
+import { AuctionCleared, DutchExchange } from './types/DutchExchange/DutchExchange';
+import { auctionId, tokenPairId } from './utils';
+import { Auction, TokenPair } from './types/schema';
 
 export function handleAuctionCleared(event: AuctionCleared): void {
   let params = event.params;
@@ -31,7 +18,7 @@ export function handleAuctionCleared(event: AuctionCleared): void {
     params.auctionIndex
   );
 
-  // auction should already exist, but if not, create a new one
+  // Auction SECTION
   let sellAuctionId = auctionId(params.sellToken, params.buyToken, params.auctionIndex);
   let sellAuction = Auction.load(sellAuctionId);
   sellAuction.auctionIndex = params.auctionIndex;

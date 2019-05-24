@@ -1,7 +1,7 @@
 import { ByteArray } from '@graphprotocol/graph-ts';
-import { zeroAsBigInt, checkIfValueExistsInArray, transactionId } from './utils';
+import { zeroAsBigInt, checkIfValueExistsInArray, transactionId, tokenBalanceId } from './utils';
 import { NewDeposit } from './types/DutchExchange/DutchExchange';
-import { Trader, Token, Deposit } from './types/schema';
+import { Trader, Token, Deposit, TokenBalance } from './types/schema';
 
 export function handleNewDeposit(event: NewDeposit): void {
   let params = event.params;
@@ -49,4 +49,18 @@ export function handleNewDeposit(event: NewDeposit): void {
   deposit.timestamp = event.block.timestamp;
   deposit.transactionHash = event.transaction.hash;
   deposit.save();
+
+  // TokenBalance SECTION
+  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.token));
+  if (tokenBalance == null) {
+    tokenBalance = new TokenBalance(tokenBalanceId(from, params.token))
+    tokenBalance.trader = trader.id;
+    tokenBalance.token = token.id;
+    tokenBalance.totalDeposited = zeroAsBigInt;
+    tokenBalance.totalWithdrawn = zeroAsBigInt;
+    tokenBalance.balance = zeroAsBigInt;
+  }
+  tokenBalance.totalDeposited = tokenBalance.totalDeposited.plus(params.amount);
+  tokenBalance.balance = tokenBalance.balance.plus(params.amount);
+  tokenBalance.save();
 }
