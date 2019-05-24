@@ -30,6 +30,17 @@ export function bigIntToBytes32(bigInt: BigInt): Bytes {
   return sum;
 }
 
+export function concat(a: ByteArray, b: ByteArray): ByteArray {
+  let out = new Uint8Array(a.length + b.length);
+  for (let i = 0; i < a.length; i++) {
+    out[i] = a[i];
+  }
+  for (let j = 0; j < b.length; j++) {
+    out[a.length + j] = b[j];
+  }
+  return out as ByteArray;
+}
+
 export function checkIfValueExistsInArray(array: string[], value: string): boolean {
   for (let i = 0; i < array.length; i++) {
     if (array[i] == value) {
@@ -47,14 +58,16 @@ export function tokenPairId(sellToken: Address, buyToken: Address): string {
   return sellToken.toHex() + '-' + buyToken.toHex();
 }
 
-export function orderId(transactionHash: Bytes, token: Address): string {
-  return transactionHash.toHex() + '-' + token.toHex();
-}
-
 export function tokenAuctionBalanceId(trader: Address, auctionId: string): string {
   return trader.toHex() + '-' + auctionId;
 }
 
-export function depositId(transactionHash: Bytes, user: Address, token: Address): string {
-  return transactionHash.toHex() + '-' + user.toHex() + '-' + token.toHex();
+export function transactionId(
+  transactionHash: ByteArray,
+  token: ByteArray,
+  amount: ByteArray
+): string {
+  let firstIdentifierPart = concat(transactionHash, token);
+  let identifier = concat(firstIdentifierPart, amount);
+  return crypto.keccak256(identifier).toHex();
 }

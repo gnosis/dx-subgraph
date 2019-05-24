@@ -3,12 +3,13 @@ import {
   tokenPairId,
   zeroAsBigInt,
   oneAsBigInt,
-  orderId,
+  transactionId,
   tokenAuctionBalanceId,
   checkIfValueExistsInArray
 } from './utils';
 import { NewTokenPair, DutchExchange } from './types/DutchExchange/DutchExchange';
 import { TokenPair, Auction, TokenAuctionBalance, Trader, SellOrder, Token } from './types/schema';
+import { ByteArray } from '@graphprotocol/graph-ts';
 
 export function handleNewTokenPair(event: NewTokenPair): void {
   let dx = DutchExchange.bind(event.address);
@@ -119,7 +120,9 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   buyAuctionOne.traders = buyAuctionOneTraders;
   buyAuctionOne.save();
 
-  let sellOrderSellToken = new SellOrder(orderId(event.transaction.hash, params.sellToken));
+  let sellOrderSellToken = new SellOrder(
+    transactionId(event.transaction.hash, params.sellToken, sellerBalanceSellToken as ByteArray)
+  );
   sellOrderSellToken.auction = sellAuctionOne.id;
   sellOrderSellToken.tokenPair = sellTokenPair.id;
   sellOrderSellToken.trader = Trader.load(from.toHex()).id;
@@ -128,7 +131,9 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   sellOrderSellToken.transactionHash = event.transaction.hash;
   sellOrderSellToken.save();
 
-  let sellOrderBuyToken = new SellOrder(orderId(event.transaction.hash, params.buyToken));
+  let sellOrderBuyToken = new SellOrder(
+    transactionId(event.transaction.hash, params.buyToken, sellerBalanceBuyToken as ByteArray)
+  );
   sellOrderBuyToken.auction = buyAuctionOne.id;
   sellOrderBuyToken.tokenPair = buyTokenPair.id;
   sellOrderBuyToken.trader = Trader.load(from.toHex()).id;

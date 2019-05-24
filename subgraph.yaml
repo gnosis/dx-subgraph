@@ -20,6 +20,10 @@ dataSources:
         - name: DutchExchange
           file: ./abis/DutchExchange.json
       eventHandlers:
+        - event: NewDeposit(address,uint256)
+          handler: handleNewDeposit
+        - event: NewWithdrawal(address,uint256)
+          handler: handleNewWithdrawal
         - event: NewSellOrder(address,address,address,uint256,uint256)
           handler: handleNewSellOrder
         - event: NewBuyOrder(address,address,address,uint256,uint256)

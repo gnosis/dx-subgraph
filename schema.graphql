@@ -28,7 +28,7 @@ type Trader @entity {
 }
 
 type SellOrder @entity {
-  id: ID! # can be transaction hash + SellToken [String]
+  id: ID! # identified by the  H(transaction hash + SellToken + amount)
   auction: Auction!
   tokenPair: TokenPair!
   trader: Trader!
@@ -38,7 +38,7 @@ type SellOrder @entity {
 }
 
 type BuyOrder @entity {
-  id: ID! # transaction hash + BuyToken [String]
+  id: ID! # identified by the  H(transaction hash + BuyToken [String] + amount)
   auction: Auction!
   tokenPair: TokenPair!
   trader: Trader!
@@ -71,15 +71,15 @@ type Token @entity {
   whitelisted: Boolean!
 }
 
-# type TokenBalance @entity {
-#  id: ID! # identified by Trader + Token 
-#  trader: Trader!
-#  token: Token!
-#  totalDeposited: BigInt
-#  totalWithdrawn: BigInt
-#  balance: BigInt
-#  tokenAuctionBalance: [TokenAuctionBalance!]
-# }
+type TokenBalance @entity {
+  id: ID! # identified by Trader + Token 
+  trader: Trader!
+  token: Token!
+  totalDeposited: BigInt
+  totalWithdrawn: BigInt
+  balance: BigInt
+  tokenAuctionBalance: [TokenAuctionBalance!]
+}
 
 type TokenAuctionBalance @entity {
   id: ID! # Identified by Trader + Auction [String]
@@ -88,4 +88,22 @@ type TokenAuctionBalance @entity {
   sellTokenBalance: BigInt
   buyTokenBalance: BigInt
   totalFeesPaid: BigInt
+}
+
+type Deposit @entity {
+  id: ID! # Identified by H(transaction hash + Token + amount)
+  trader: Trader!
+  token: Token!
+  amount: BigInt
+  timestamp: BigInt
+  transactionHash: Bytes
+}
+
+type Withdrawal @entity {
+  id: ID! # Identified by H(transaction hash + Token + amount)
+  trader: Trader!
+  token: Token!
+  amount: BigInt
+  timestamp: BigInt
+  transactionHash: Bytes
 }

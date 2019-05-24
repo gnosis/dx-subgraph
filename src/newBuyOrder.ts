@@ -5,7 +5,7 @@ import {
   zeroAsBigInt,
   tokenPairId,
   oneAsBigInt,
-  orderId,
+  transactionId,
   checkIfValueExistsInArray,
   tokenAuctionBalanceId
 } from './utils';
@@ -43,7 +43,9 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
     tokenPair.save();
   }
   // Add the buy order
-  let buyOrder = new BuyOrder(orderId(event.transaction.hash, params.buyToken));
+  let buyOrder = new BuyOrder(
+    transactionId(event.transaction.hash, params.buyToken, params.amount as ByteArray)
+  );
   buyOrder.auction = Auction.load(
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)
   ).id;

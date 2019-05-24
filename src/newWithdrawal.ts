@@ -1,8 +1,8 @@
 import { add256, zeroAsBigInt, checkIfValueExistsInArray, transactionId } from './utils';
-import { NewDeposit } from './types/DutchExchange/DutchExchange';
-import { Trader, Token } from './types/schema';
+import { NewWithdrawal } from './types/DutchExchange/DutchExchange';
+import { Trader, Token, Withdrawal } from './types/schema';
 
-export function handleNewDeposit(event: NewDeposit): void {
+export function handleNewWithdrawal(event: NewWithdrawal): void {
   let params = event.params;
   let from = event.transaction.from;
 
@@ -37,4 +37,7 @@ export function handleNewDeposit(event: NewDeposit): void {
     token.traders = tokenTradersMemory;
   }
   token.save();
+
+  // Withdrawal SECTION
+  // let withdrawal = new Withdrawal(depo);
 }
