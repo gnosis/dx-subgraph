@@ -1,6 +1,6 @@
 import { zeroAsBigInt, checkIfValueExistsInArray, transactionId, tokenBalanceId } from './utils';
 import { NewWithdrawal } from './types/DutchExchange/DutchExchange';
-import { Trader, Token, Withdrawal } from './types/schema';
+import { Trader, Token, Withdrawal, TokenBalance } from './types/schema';
 import { ByteArray } from '@graphprotocol/graph-ts';
 
 export function handleNewWithdrawal(event: NewWithdrawal): void {

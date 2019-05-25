@@ -1,18 +1,20 @@
-import { auctionId, zeroAsBigInt, tokenPairId } from './utils';
-import { AuctionStartScheduled } from './types/DutchExchange/DutchExchange';
+import { auctionId, zeroAsBigInt, tokenPairId, checkIfValueExistsInArray } from './utils';
+import { AuctionStartScheduled, DutchExchange } from './types/DutchExchange/DutchExchange';
 import { Auction, TokenPair, Trader } from './types/schema';
 
 export function handleAuctionStartScheduled(event: AuctionStartScheduled): void {
   let params = event.params;
+  let dx = DutchExchange.bind(event.address);
+  let tokenOrder = dx.getTokenOrder(params.sellToken, params.buyToken);
   let from = event.transaction.from;
   let trader = Trader.load(from.toHex());
 
   // TokenPair SECTION
-  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  let tokenPair = TokenPair.load(tokenPairId(tokenOrder.value0, tokenOrder.value1));
   if (tokenPair == null) {
+    tokenPair = new TokenPair(tokenPairId(tokenOrder.value0, tokenOrder.value1));
     tokenPair.token1 = params.sellToken;
     tokenPair.token2 = params.buyToken;
-    tokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
     tokenPair.currentAuctionIndex = 0;
     tokenPair.auctions = [];
     tokenPair.traders = [trader.id];
@@ -21,8 +23,10 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
   }
   tokenPair.latestStartTime = params.auctionStart;
   let tokenPairTraders = tokenPair.traders;
-  tokenPairTraders[tokenPairTraders.length] = trader.id;
-  tokenPair.traders = tokenPairTraders;
+  if (!checkIfValueExistsInArray(tokenPairTraders as string[], trader.id)) {
+    tokenPairTraders[tokenPairTraders.length] = trader.id;
+    tokenPair.traders = tokenPairTraders;
+  }
   tokenPair.save();
 
   // Auction SECTION

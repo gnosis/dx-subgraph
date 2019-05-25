@@ -1,5 +1,6 @@
 export { add256, bigIntToBytes32 } from './utils';
 export { handleNewTokenPair } from './newTokenPair';
+export { handleNewWithdrawal } from './newWithdrawal';
 export { handleNewDeposit } from './newDeposit';
 export { handleAuctionCleared } from './auctionCleared';
 export { handleAuctionStartScheduled } from './auctionStartScheduled';

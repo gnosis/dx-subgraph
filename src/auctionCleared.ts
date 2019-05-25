@@ -5,6 +5,7 @@ import { Auction, TokenPair } from './types/schema';
 export function handleAuctionCleared(event: AuctionCleared): void {
   let params = event.params;
   let dutchExchange = DutchExchange.bind(event.address);
+  let tokenOrder = dutchExchange.getTokenOrder(params.sellToken, params.buyToken);
 
   let closingPriceOpp = dutchExchange.closingPrices(
     params.buyToken,
@@ -38,7 +39,7 @@ export function handleAuctionCleared(event: AuctionCleared): void {
   buyAuction.save();
 
   // TokenPair SECTION
-  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  let tokenPair = TokenPair.load(tokenPairId(tokenOrder.value0, tokenOrder.value1));
   tokenPair.currentAuctionIndex += 1;
   tokenPair.latestClearTime = event.block.timestamp;
   tokenPair.save();

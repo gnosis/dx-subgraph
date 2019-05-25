@@ -8,7 +8,7 @@ import {
   tokenAuctionBalanceId,
   tokenBalanceId
 } from './utils';
-import { NewBuyOrder } from './types/DutchExchange/DutchExchange';
+import { NewBuyOrder, DutchExchange } from './types/DutchExchange/DutchExchange';
 import {
   Auction,
   TokenPair,
@@ -21,6 +21,8 @@ import {
 
 export function handleNewBuyOrder(event: NewBuyOrder): void {
   let params = event.params;
+  let dx = DutchExchange.bind(event.address);
+  let tokenOrder = dx.getTokenOrder(params.sellToken, params.buyToken);
   let from = event.transaction.from;
 
   // Trader SECTION
@@ -33,7 +35,7 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   trader.save();
 
   // TokenPair SECTION
-  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  let tokenPair = TokenPair.load(tokenPairId(tokenOrder.value0, tokenOrder.value1));
   let tokenPairTraders = tokenPair.traders;
   if (!checkIfValueExistsInArray(tokenPair.traders as string[], trader.id)) {
     tokenPairTraders[tokenPairTraders.length] = trader.id;

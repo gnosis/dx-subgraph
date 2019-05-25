@@ -39,7 +39,7 @@ async function waitForGraphSync(targetBlockNumber) {
 }
 
 contract('DutchExchange', accounts => {
-  const [master, seller1, buyer1] = accounts;
+  const [master, seller1, seller2, buyer1, buyer2] = accounts;
 
   const startBal = {
     startingETH: toBN(toWei('10000')),
@@ -60,7 +60,7 @@ contract('DutchExchange', accounts => {
       PriceOracleInterface: oracle
     } = contracts);
 
-    await setupTest(accounts, contracts, startBal);
+    await setupTest([master, seller1, seller2, buyer1, buyer2], contracts, startBal);
 
     // const totalMgn = (await mgn.totalSupply.call()).toNumber();
     // assert.strictEqual(totalMgn, 0, 'total MGN tokens should be 0');
@@ -79,20 +79,45 @@ contract('DutchExchange', accounts => {
     // a new deployed GNO to act as a different token
     gno2 = await TokenGNO.new(toBN(toWei('10000')), { from: master });
 
-    await Promise.all([
-      gno2.transfer(seller1, startBal.startingGNO, { from: master }),
-      gno2.approve(dx.address, startBal.startingGNO, { from: seller1 })
-    ]);
-    await dx.deposit(gno2.address, startBal.startingGNO, { from: seller1 });
+    // await Promise.all([
+    //   gno2.transfer(seller1, startBal.startingGNO, { from: master }),
+    //   gno2.approve(dx.address, startBal.startingGNO, { from: seller1 })
+    // ]);
+    // await dx.deposit(gno2.address, startBal.startingGNO, { from: seller1 });
 
     symbols = {
       [eth.address]: 'ETH',
-      [gno.address]: 'GNO',
-      [gno2.address]: 'GNO2'
+      [gno.address]: 'GNO'
+      // [gno2.address]: 'GNO2'
     };
   });
 
   it('DutchExchange', async () => {
+    // Assert that the tokens have been properly deposited
+    log(fromWei((await eth.balanceOf.call(master)).toString()));
+    log(fromWei((await gno.balanceOf.call(master)).toString()));
+    log(fromWei((await gno2.balanceOf.call(master)).toString()));
+
+    log(fromWei((await eth.balanceOf.call(seller1)).toString()));
+    log(fromWei((await gno.balanceOf.call(seller1)).toString()));
+    log(fromWei((await gno2.balanceOf.call(seller1)).toString()));
+
+    log(fromWei((await eth.balanceOf.call(buyer1)).toString()));
+    log(fromWei((await gno.balanceOf.call(buyer1)).toString()));
+    log(fromWei((await gno2.balanceOf.call(buyer1)).toString()));
+
+    log(fromWei((await dx.balances.call(eth.address, master)).toString()));
+    log(fromWei((await dx.balances.call(gno.address, master)).toString()));
+    log(fromWei((await dx.balances.call(gno2.address, master)).toString()));
+
+    log(fromWei((await dx.balances.call(eth.address, seller1)).toString()));
+    log(fromWei((await dx.balances.call(gno.address, seller1)).toString()));
+    log(fromWei((await dx.balances.call(gno2.address, seller1)).toString()));
+
+    log(fromWei((await dx.balances.call(eth.address, buyer1)).toString()));
+    log(fromWei((await dx.balances.call(gno.address, buyer1)).toString()));
+    log(fromWei((await dx.balances.call(gno2.address, buyer1)).toString()));
+
     await addTokenPair(seller1);
     await waitForGraphSync();
 

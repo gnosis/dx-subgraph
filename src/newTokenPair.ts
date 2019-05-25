@@ -21,8 +21,9 @@ import {
 import { ByteArray } from '@graphprotocol/graph-ts';
 
 export function handleNewTokenPair(event: NewTokenPair): void {
-  let dx = DutchExchange.bind(event.address);
   let params = event.params;
+  let dx = DutchExchange.bind(event.address);
+  let tokenOrder = dx.getTokenOrder(params.sellToken, params.buyToken);
   let from = event.transaction.from;
 
   let sellerBalanceSellToken = dx.sellerBalances(
@@ -56,9 +57,9 @@ export function handleNewTokenPair(event: NewTokenPair): void {
   trader.save();
 
   // TokenPair SECTION
-  let tokenPair = TokenPair.load(tokenPairId(params.sellToken, params.buyToken));
+  let tokenPair = TokenPair.load(tokenPairId(tokenOrder.value0, tokenOrder.value1));
   if (tokenPair == null) {
-    tokenPair = new TokenPair(tokenPairId(params.sellToken, params.buyToken));
+    tokenPair = new TokenPair(tokenPairId(tokenOrder.value0, tokenOrder.value1));
     tokenPair.token1 = params.sellToken;
     tokenPair.token2 = params.buyToken;
     tokenPair.currentAuctionIndex = 1;
