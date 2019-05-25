@@ -11,17 +11,6 @@ const { randomHex, soliditySha3, toHex, toBN, padLeft, keccak256, toWei, fromWei
 const TokenGNO = artifacts.require('TokenGNO');
 const DutchExchangeProxy = artifacts.require('DutchExchangeProxy');
 
-// Test VARS
-let eth;
-let gno, gno2;
-let mgn;
-let dx;
-let oracle;
-
-let feeRatio;
-
-let contracts, symbols;
-
 const separateLogs = () => utilsLog('\n    ----------------------------------');
 const log = (...args) => utilsLog('\t', ...args);
 
@@ -38,29 +27,33 @@ async function waitForGraphSync(targetBlockNumber) {
   );
 }
 
+// Test Variables
+let eth;
+let gno, gno2;
+let mgn;
+let dx;
+let oracle;
+let feeRatio;
+let contracts, symbols;
+
 contract('DutchExchange', accounts => {
   const [master, seller1, seller2, buyer1, buyer2] = accounts;
-
-  const startBal = {
-    startingETH: toBN(toWei('10000')),
-    startingGNO: toBN(toWei('10000')),
-    ethUSDPrice: toBN(toWei('1008')),
-    sellingAmount: toBN(toWei('50'))
-  };
 
   before(async () => {
     // get contracts
     contracts = await getContracts();
+    contracts.gno2 = await TokenGNO.new(toBN(toWei('100000')), { from: master });
     // destructure contracts into upper state
     ({
       EtherToken: eth,
       TokenGNO: gno,
       TokenFRT: mgn,
       DutchExchange: dx,
-      PriceOracleInterface: oracle
+      PriceOracleInterface: oracle,
+      gno2: gno2
     } = contracts);
 
-    await setupTest([master, seller1, seller2, buyer1, buyer2], contracts, startBal);
+    await setupTest([master, seller1, seller2, buyer1, buyer2], contracts, {});
 
     // const totalMgn = (await mgn.totalSupply.call()).toNumber();
     // assert.strictEqual(totalMgn, 0, 'total MGN tokens should be 0');
@@ -77,7 +70,6 @@ contract('DutchExchange', accounts => {
     };
 
     // a new deployed GNO to act as a different token
-    gno2 = await TokenGNO.new(toBN(toWei('10000')), { from: master });
 
     // await Promise.all([
     //   gno2.transfer(seller1, startBal.startingGNO, { from: master }),
@@ -87,13 +79,21 @@ contract('DutchExchange', accounts => {
 
     symbols = {
       [eth.address]: 'ETH',
-      [gno.address]: 'GNO'
-      // [gno2.address]: 'GNO2'
+      [gno.address]: 'GNO',
+      [gno2.address]: 'GNO2'
     };
   });
 
   it('DutchExchange', async () => {
     // Assert that the tokens have been properly deposited
+    await waitForGraphSync();
+
+    let depositData = (await axios.post('http://127.0.0.1:8000/subgraphs/name/Gnosis/DutchX', {
+      query: '{tokens { id } tokenPairs { id }}'
+    })).data.data;
+    // Assert that the trader exists
+    log(depositData);
+
     log(fromWei((await eth.balanceOf.call(master)).toString()));
     log(fromWei((await gno.balanceOf.call(master)).toString()));
     log(fromWei((await gno2.balanceOf.call(master)).toString()));

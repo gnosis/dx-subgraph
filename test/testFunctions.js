@@ -101,8 +101,20 @@ const getAuctionStart = async (ST, BT) => {
  */
 const setupTest = async (
   accounts,
-  { DutchExchange: dx, EtherToken: eth, TokenGNO: gno, PriceFeed: oracle, Medianizer: medianizer },
-  { startingETH = toWei('10000'), startingGNO = toWei('10000'), ethUSDPrice = toWei('1100') }
+  {
+    DutchExchange: dx,
+    EtherToken: eth,
+    TokenGNO: gno,
+    PriceFeed: oracle,
+    Medianizer: medianizer,
+    gno2
+  },
+  {
+    startingETH = toWei('10000'),
+    startingGNO = toWei('10000'),
+    startingGNO2 = toWei('20000'),
+    ethUSDPrice = toWei('1100')
+  }
 ) => {
   // Await ALL Promises for each account setup
 
@@ -114,6 +126,8 @@ const setupTest = async (
       eth.approve(dx.address, startingETH, { from: acct });
       gno.transfer(acct, startingGNO, { from: accounts[0] });
       gno.approve(dx.address, startingGNO, { from: acct });
+      gno2.transfer(acct, startingGNO2, { from: accounts[0] });
+      gno2.approve(dx.address, startingGNO2, { from: acct });
     })
   );
   // Deposit depends on ABOVE finishing first... so run here
@@ -122,6 +136,7 @@ const setupTest = async (
       if (acct === accounts[0]) return;
       dx.deposit(eth.address, startingETH, { from: acct });
       dx.deposit(gno.address, startingGNO, { from: acct });
+      dx.deposit(gno2.address, startingGNO2, { from: acct });
     })
   );
 
