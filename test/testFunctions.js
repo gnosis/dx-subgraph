@@ -14,9 +14,9 @@
 */
 
 const bn = require('bignumber.js');
+const bnTruffle5 = require('bn.js');
 const { toWei } = web3.utils;
-const { wait } = require('@digix/tempo')(web3);
-const { silent, gasLogWrapper, log, timestamp, varLogger } = require('./utils');
+const { silent, gasLogWrapper, log, timestamp, varLogger, wait } = require('./utils');
 
 // I know, it's gross
 // add wei converter
@@ -159,15 +159,16 @@ const setupTest = async (
  */
 const setAndCheckAuctionStarted = async (ST, BT) => {
   const { DutchExchange: dx, EtherToken: eth, TokenGNO: gno } = await getContracts();
+  const latestBlock = await web3.eth.getBlock('latest');
   ST = ST || eth;
   BT = BT || gno;
 
-  const startingTimeOfAuction = (await dx.getAuctionStart.call(ST.address, BT.address)).toNumber();
+  const startingTimeOfAuction = (await dx.getAuctionStart.call(ST.address, BT.address)).toString();
   assert.equal(startingTimeOfAuction > 1, true, 'Auction hasn`t started yet');
 
   // wait for the right time to send buyOrder
   // implements isAtLeastZero (aka will not go BACK in time)
-  await wait(startingTimeOfAuction - timestamp());
+  await wait(startingTimeOfAuction - latestBlock.timestamp);
 
   log(`
   time now ----------> ${new Date(timestamp() * 1000)}

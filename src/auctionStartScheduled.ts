@@ -15,7 +15,7 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
     tokenPair = new TokenPair(tokenPairId(tokenOrder.value0, tokenOrder.value1));
     tokenPair.token1 = params.sellToken;
     tokenPair.token2 = params.buyToken;
-    tokenPair.currentAuctionIndex = 0;
+    tokenPair.currentAuctionIndex = 1;
     tokenPair.auctions = [];
     tokenPair.traders = [trader.id];
     tokenPair.listingTimestamp = event.block.timestamp;

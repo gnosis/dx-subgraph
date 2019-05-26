@@ -41,19 +41,12 @@ export function handleNewTokenPair(event: NewTokenPair): void {
 
   // Trader SECTION
   let trader = Trader.load(from.toHex());
-  if (trader == null) {
-    trader = new Trader(from.toHex());
-    trader.totalFrts = zeroAsBigInt;
-    trader.sellOrders = [];
-    trader.buyOrders = [];
-    trader.tokenPairsParticipated = [];
-    trader.tokensParticipated = [];
-    trader.tokenAuctionBalances = [];
-  }
   let traderParticipation = trader.firstParticipation;
   if (traderParticipation.equals(zeroAsBigInt)) {
     traderParticipation = event.block.timestamp;
+    trader.firstParticipation = traderParticipation;
   }
+  trader.lastActive = event.block.timestamp;
   trader.save();
 
   // TokenPair SECTION

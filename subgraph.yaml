@@ -29,7 +29,7 @@ dataSources:
         - event: NewBuyOrder(address,address,address,uint256,uint256)
           handler: handleNewBuyOrder
         - event: NewSellerFundsClaim(address,address,address,uint256,uint256,uint256)
-          handler: handleNewSellFundsClaim
+          handler: handleNewSellerFundsClaim
         - event: NewBuyerFundsClaim(address,address,address,uint256,uint256,uint256)
           handler: handleNewBuyerFundsClaim
         - event: NewTokenPair(address,address)
