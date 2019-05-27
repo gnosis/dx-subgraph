@@ -31,6 +31,7 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   if (traderParticipation.equals(zeroAsBigInt)) {
     traderParticipation = event.block.timestamp;
   }
+  trader.firstParticipation = traderParticipation;
   trader.lastActive = event.block.timestamp;
   trader.save();
 

@@ -1,6 +1,6 @@
 import { auctionId, tokenAuctionBalanceId } from './utils';
 import { NewBuyerFundsClaim } from './types/DutchExchange/DutchExchange';
-import { Trader, TokenBalance, TokenAuctionBalance } from './types/schema';
+import { Trader, TokenBalance, TokenAuctionBalance, Token } from './types/schema';
 import { zeroAsBigInt, tokenBalanceId } from './utils';
 
 export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
@@ -14,6 +14,14 @@ export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
 
   // TokenBalance SECTION
   let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.sellToken));
+  if (tokenBalance == null) {
+    tokenBalance = new TokenBalance(tokenBalanceId(from, params.sellToken));
+    tokenBalance.trader = trader.id;
+    tokenBalance.token = Token.load(params.sellToken.toHex()).id;
+    tokenBalance.totalDeposited = zeroAsBigInt;
+    tokenBalance.totalWithdrawn = zeroAsBigInt;
+    tokenBalance.balance = zeroAsBigInt;
+  }
   tokenBalance.balance = tokenBalance.balance.plus(params.amount);
   tokenBalance.save();
 

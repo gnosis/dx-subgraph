@@ -23,6 +23,7 @@ const {
   setupTest,
   getClearingTime,
   setAndCheckAuctionStarted,
+  waitUntilPriceIsXPercentOfPreviousPrice,
   getAuctionIndex
 } = require('./testFunctions');
 const { randomHex, soliditySha3, toHex, toBN, padLeft, keccak256, toWei, fromWei } = web3.utils;
@@ -31,7 +32,6 @@ const DutchExchangeProxy = artifacts.require('DutchExchangeProxy');
 
 const separateLogs = () => utilsLog('\n    ----------------------------------');
 const log = (...args) => utilsLog('\t', ...args);
-log('currentProvider', web3.currentProvider);
 
 async function waitForGraphSync(targetBlockNumber) {
   if (targetBlockNumber == null) {
@@ -87,14 +87,6 @@ contract('DutchExchange', accounts => {
       initialClosingPriceNum: 2,
       initialClosingPriceDen: 1
     };
-
-    // a new deployed GNO to act as a different token
-
-    // await Promise.all([
-    //   gno2.transfer(seller1, startBal.startingGNO, { from: master }),
-    //   gno2.approve(dx.address, startBal.startingGNO, { from: seller1 })
-    // ]);
-    // await dx.deposit(gno2.address, startBal.startingGNO, { from: seller1 });
 
     symbols = {
       [eth.address]: 'ETH',
@@ -159,7 +151,6 @@ contract('DutchExchange', accounts => {
     let addTokenPairData = (await axios.post('http://127.0.0.1:8000/subgraphs/name/Gnosis/DutchX', {
       query: `{trader(id: "${seller1.toLowerCase()}") { id firstParticipation sellOrders { id } buyOrders { id } tokenPairsParticipated { id } tokensParticipated { id } tokenAuctionBalances { id } lastActive } tokenPair(id: "${tokenPair}") { id token1 token2 currentAuctionIndex traders { id } latestStartTime } auction(id: "${auctionId2}") { id sellToken buyToken sellVolume buyVolume cleared startTime tokenPair { id } sellOrders { id } buyOrders { id }} sellOrders { id } tokenBalances { id balance} tokenAuctionBalances { id sellTokenBalance trader { id } auction { id cleared startTime }}}`
     })).data.data;
-
     assert.equal(addTokenPairData.trader.firstParticipation, latestBlock.timestamp.toString());
     assert.equal(addTokenPairData.trader.lastActive, latestBlock.timestamp.toString());
     assert.lengthOf(addTokenPairData.trader.sellOrders, 2);
@@ -182,7 +173,6 @@ contract('DutchExchange', accounts => {
       tokenAuctionBalance.trader
     ])) {
       assert.equal(auction.id, auctionId1);
-      log('start time ', auction.startTime);
       assert.equal(auction.cleared, false);
       assert.equal(fromWei(sellTokenBalance), '9950');
       assert.equal(trader.id, seller1.toLowerCase());
@@ -216,9 +206,27 @@ contract('DutchExchange', accounts => {
     )) {
       assert.equal(fromWei(balance), 20000);
     }
-    // await setAndCheckAuctionStarted();
-    log(addTokenPairData.auction.starTime);
-    log(latestBlock.timestamp);
+    // Post some sell orders into the first auction before it starts
+    await dx.postSellOrder(eth.address, gno.address, 0, toWei('5000'), { from: seller2 });
+    const timeCheck1 = await web3.eth.getBlock('latest');
+    await dx.postSellOrder(gno.address, eth.address, 0, toWei('5000'), { from: seller2 });
+    await waitForGraphSync();
+
+    let trader2Data = (await axios.post('http://127.0.0.1:8000/subgraphs/name/Gnosis/DutchX', {
+      query: `{trader(id: "${seller2.toLowerCase()}") { id firstParticipation sellOrders { id amount auction { id }} buyOrders { id } tokenPairsParticipated { id } tokensParticipated { id } tokenAuctionBalances { id } lastActive }}`
+    })).data.data;
+    assert.equal(trader2Data.trader.firstParticipation, timeCheck1.timestamp.toString());
+    assert.lengthOf(trader2Data.trader.sellOrders, 2);
+    assert.lengthOf(trader2Data.trader.tokenPairsParticipated, 1);
+    assert.lengthOf(trader2Data.trader.tokenAuctionBalances, 2);
+    for (const amount of trader2Data.trader.sellOrders.map(order => order.amount)) {
+      assert.equal(fromWei(amount), '4975');
+    }
+
+    // Wait for the auction to start
+    await wait(64800, 1);
+    log(await dx.getCurrentAuctionPrice(eth.address, gno.address, 1));
+    log(await dx.getCurrentAuctionPrice(gno.address, eth.address, 1));
 
     // End of tessts
   });
@@ -249,24 +257,3 @@ const addTokenPair = (account, options) => {
     { from: account }
   );
 };
-
-// const setAndCheckAuctionStarted = async (ST, BT) => {
-//   const { DutchExchange: dx, EtherToken: eth, TokenGNO: gno } = await getContracts();
-//   ST = ST || eth;
-//   BT = BT || gno;
-//   const latestBlock = await web3.eth.getBlock('latest');
-
-//   const startingTimeOfAuction = (await dx.getAuctionStart.call(ST.address, BT.address)).toString();
-//   assert.equal(startingTimeOfAuction > 1, true, 'Auction hasn`t started yet');
-
-//   // wait for the right time to send buyOrder
-//   // implements isAtLeastZero (aka will not go BACK in time)
-//   await wait(startingTimeOfAuction - latestBlock.timestamp);
-
-//   log(`
-//   time now ----------> ${new Date(timestamp() * 1000)}
-//   auction starts ----> ${new Date(startingTimeOfAuction * 1000)}
-//   `);
-
-//   assert.equal(timestamp() >= startingTimeOfAuction, true);
-// };

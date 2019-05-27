@@ -193,15 +193,22 @@ const waitUntilPriceIsXPercentOfPreviousPrice = async (ST, BT, p) => {
 
   const currentIndex = getAuctionIndex.toNumber();
   const startingTimeOfAuction = getAuctionStart.toNumber();
+  console.log(
+    'TCL: waitUntilPriceIsXPercentOfPreviousPrice -> startingTimeOfAuction',
+    startingTimeOfAuction
+  );
   let priceBefore = 1;
   if (!silent) {
-    let [num, den] = await dx.getCurrentAuctionPrice.call(ST.address, BT.address, currentIndex);
+    log('Current Priice', await dx.getCurrentAuctionPrice(ST.address, BT.address, currentIndex));
+    let initialPrice = await dx.getCurrentAuctionPrice(ST.address, BT.address, currentIndex);
+    let num = initialPrice.num;
+    let den = initialPrice.den;
     priceBefore = num.div(den);
     log(`
       Price BEFORE waiting until Price = initial Closing Price (2) * 2
       ==============================
-      Price.num             = ${num.toNumber()}
-      Price.den             = ${den.toNumber()}
+      Price.num             = ${num.toString()}
+      Price.den             = ${den.toString()}
       Price at this moment  = ${priceBefore}
       ==============================
     `);
@@ -209,21 +216,23 @@ const waitUntilPriceIsXPercentOfPreviousPrice = async (ST, BT, p) => {
 
   const timeToWaitFor = Math.ceil((86400 - p * 43200) / (1 + p)) + startingTimeOfAuction;
   // wait until the price is good
-  await wait(timeToWaitFor - timestamp());
+  await wait(timeToWaitFor);
 
   if (!silent) {
-    [num, den] = await dx.getCurrentAuctionPrice.call(ST.address, BT.address, currentIndex);
+    let laterPrice = await dx.getCurrentAuctionPrice(ST.address, BT.address, currentIndex);
+    num = laterPrice.num;
+    den = laterPrice.den;
     const priceAfter = num.div(den);
     log(`
       Price AFTER waiting until Price = ${p * 100}% of ${priceBefore / 2} (initial Closing Price)
       ==============================
-      Price.num             = ${num.toNumber()}
-      Price.den             = ${den.toNumber()}
+      Price.num             = ${num.toString()}
+      Price.den             = ${den.toString()}
       Price at this moment  = ${priceAfter}
       ==============================
     `);
   }
-  assert.equal(timestamp() >= timeToWaitFor, true);
+  assert.equal((await web3.eth.getBlock('latest').timestamp) >= timeToWaitFor, true);
   // assert.isAtLeast(priceAfter, (priceBefore / 2) * p)
 
   return timeToWaitFor;

@@ -1,7 +1,7 @@
 import { auctionId, zeroAsBigInt, tokenBalanceId, tokenAuctionBalanceId } from './utils';
 import { Fee } from './types/DutchExchange/DutchExchange';
 
-import { Auction, TokenAuctionBalance, TokenBalance } from './types/schema';
+import { Auction, TokenAuctionBalance, TokenBalance, Trader, Token } from './types/schema';
 
 export function handleFee(event: Fee): void {
   let params = event.params;
@@ -29,6 +29,14 @@ export function handleFee(event: Fee): void {
 
   // TokenBalance SECTION
   let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.primaryToken));
+  if (tokenBalance == null) {
+    tokenBalance = new TokenBalance(tokenBalanceId(from, params.primaryToken));
+    tokenBalance.trader = Trader.load(from.toHex()).id;
+    tokenBalance.token = Token.load(params.primaryToken.toHex()).id;
+    tokenBalance.totalDeposited = zeroAsBigInt;
+    tokenBalance.totalWithdrawn = zeroAsBigInt;
+    tokenBalance.balance = zeroAsBigInt;
+  }
   tokenBalance.balance = tokenBalance.balance.minus(params.fee);
   tokenBalance.save();
 
@@ -46,6 +54,10 @@ export function handleFee(event: Fee): void {
         auctionId(params.primaryToken, params.secondarToken, params.auctionIndex)
       )
     );
+    tokenAuctionBalance.trader = Trader.load(from.toHex()).id;
+    tokenAuctionBalance.auction = auction.id;
+    tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
+    tokenAuctionBalance.buyTokenBalance = zeroAsBigInt;
     tokenAuctionBalance.totalFeesPaid = zeroAsBigInt;
   }
   tokenAuctionBalance.totalFeesPaid = tokenAuctionBalance.totalFeesPaid.plus(params.fee);
