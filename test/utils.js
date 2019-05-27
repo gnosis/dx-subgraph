@@ -109,8 +109,6 @@ const assertRejects = async (q, msg) => {
 
 const blockNumber = () => web3.eth.blockNumber;
 
-const timestamp = (block = 'latest') => web3.eth.getBlock(block).timestamp;
-
 // keeps track of watched events
 let stopWatching = {};
 /**
@@ -258,6 +256,74 @@ const revertSnapshot = snapshotId => {
   });
 };
 
+// Identifier Utils
+const auctionId = (sellToken, buyToken, auctionIndex) => {
+  return (sellToken + '-' + buyToken + '-' + auctionIndex.toString()).toLowerCase();
+};
+
+const tokenPairId = (sellToken, buyToken) => {
+  return (sellToken + '-' + buyToken).toLowerCase();
+};
+
+const tokenBalanceId = (trader, token) => {
+  return (trader + '-' + token).toLowerCase();
+};
+
+const tokenAuctionBalanceId = (trader, auctionId) => {
+  return (trader + '-' + auctionId).toLowerCase();
+};
+
+// export function transactionId(
+//   transactionHash: ByteArray,
+//   token: ByteArray,
+//   amount: ByteArray
+// ): string {
+//   let firstIdentifierPart = concat(transactionHash, token);
+//   let identifier = concat(firstIdentifierPart, amount);
+//   return crypto.keccak256(identifier).toHex();
+// }
+
+// Digix Tempo updated
+const sendRpc = (method, params) => {
+  return new Promise(resolve => {
+    web3.currentProvider.send(
+      {
+        jsonrpc: '2.0',
+        method,
+        params: params || [],
+        id: new Date().getTime()
+      },
+      (err, res) => {
+        resolve(res);
+      }
+    );
+  });
+};
+const waitUntilBlock = (seconds, targetBlock) => {
+  return new Promise(resolve => {
+    const asyncIterator = () => {
+      return web3.eth.getBlock('latest', (e, { number }) => {
+        if (number >= targetBlock - 1) {
+          return sendRpc('evm_increaseTime', [seconds])
+            .then(() => sendRpc('evm_mine'))
+            .then(resolve);
+        }
+        return sendRpc('evm_mine').then(asyncIterator);
+      });
+    };
+    asyncIterator();
+  });
+};
+const wait = (seconds = 20, blocks = 1) => {
+  return new Promise(resolve => {
+    return web3.eth.getBlock('latest', (e, { number }) => {
+      resolve(blocks + number);
+    });
+  }).then(targetBlock => {
+    return waitUntilBlock(seconds, targetBlock);
+  });
+};
+
 module.exports = {
   AUCTION_START_WAITING_FOR_FUNDING,
   silent,
@@ -269,8 +335,13 @@ module.exports = {
   gasLogWrapper,
   log,
   logger,
-  timestamp,
   varLogger,
   makeSnapshot,
-  revertSnapshot
+  revertSnapshot,
+  auctionId,
+  tokenPairId,
+  tokenBalanceId,
+  tokenAuctionBalanceId,
+  wait,
+  waitUntilBlock
 };

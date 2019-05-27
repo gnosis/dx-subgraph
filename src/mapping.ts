@@ -1,28 +1,12 @@
-import { crypto, Address, BigInt, Bytes, TypedMap, ByteArray } from '@graphprotocol/graph-ts';
-import {
-  NewDeposit,
-  NewWithdrawal,
-  NewSellOrder,
-  NewBuyOrder,
-  NewSellerFundsClaim,
-  NewBuyerFundsClaim,
-  NewTokenPair,
-  AuctionCleared,
-  AuctionStartScheduled,
-  Fee
-} from './types/DutchExchange/DutchExchange';
-import {
-  Auction,
-  TokenPair,
-  Trader,
-  SellOrder,
-  BuyOrder,
-  Token,
-  TokenBalance,
-  TokenAuctionBalance
-} from './types/schema';
-
-export handeNewTokenPair(event: NewTokenPair) {
-  // bind the contract
-  // lookup the funding, attribute it properly
-}
+export { add256, bigIntToBytes32 } from './utils';
+export { handleNewTokenPair } from './newTokenPair';
+export { handleNewWithdrawal } from './newWithdrawal';
+export { handleNewDeposit } from './newDeposit';
+export { handleAuctionCleared } from './auctionCleared';
+export { handleAuctionStartScheduled } from './auctionStartScheduled';
+export { handleFee } from './fee';
+export { handleNewBuyerFundsClaim } from './newBuyerFundsClaim';
+export { handleNewBuyOrder } from './newBuyOrder';
+export { handleNewSellerFundsClaim } from './newSellerFundsClaim';
+export { handleNewSellOrder } from './newSellOrder';
+export { handleApproval } from './approval';

@@ -1,96 +1,106 @@
 type Auction @entity {
-  id: ID!
-  sellToken: Bytes!
-  buyToken: Bytes!
-  sellVolume: BigInt!
+  id: ID! #identified by sellToken - buyToken + auctionIndex [String]
+  sellToken: Bytes
+  buyToken: Bytes
+  sellVolume: BigInt
   buyVolume: BigInt!
-  auctionIndex: BigInt!
-  priceNum: BigInt!
-  priceDen: BigInt!
-  cleared: Boolean!
-  startTime: BigInt!
-  clearingTime: BigInt!
-  tokenPair: TokenPair!
+  auctionIndex: BigInt
+  cleared: Boolean
+  startTime: BigInt
+  clearingTime: BigInt
+  tokenPair: TokenPair
+  totalFeesPaid: BigInt
   traders: [Trader!]
   sellOrders: [SellOrder!] @derivedFrom(field: "auction")
   buyOrders: [BuyOrder!] @derivedFrom(field: "auction")
 }
 
-type TokenPair @entity {
-  id: ID! # identified by the sell address + buy address added together
-  sellToken: Bytes!
-  buyToken: Bytes!
-  totalSellVolume: BigInt!
-  totalBuyVolume: BigInt!
-  listingTime: BigInt!
-  latestStartTime: BigInt!
-  latestClearTime: BigInt
-  auctions: [Auction!]
-  traders: [Trader!]
-  currentAuctionIndex: Int 
-  listingTransactionHash: Bytes
-}
-
 type Trader @entity {
   id: ID! # Address
-  sellOrders: [SellOrder!] @derivedFrom(field: "Trader")
-  buyOrders: [BuyOrder!] @derivedFrom(field: "Trader")
-  tokenPairsParticipated: [TokenPair!]
-  tokensParticipated: [Token!]
-  tokenBalances: [TokenBalance!]
-  frts: BigInt
+  sellOrders: [SellOrder!] @derivedFrom(field: "trader")
+  buyOrders: [BuyOrder!] @derivedFrom(field: "trader")
+  tokenPairsParticipated: [TokenPair!] @derivedFrom(field: "traders")
+  tokensParticipated: [Token!] @derivedFrom(field: "traders")
+  tokenAuctionBalances: [TokenAuctionBalance!] @derivedFrom(field: "trader")
   firstParticipation: BigInt
   lastActive: BigInt
+  totalFrts: BigInt
 }
 
 type SellOrder @entity {
-  id: ID! # can be transaction hash in block
+  id: ID! # identified by the  H(transaction hash + SellToken + amount)
   auction: Auction!
   tokenPair: TokenPair!
   trader: Trader!
   amount: BigInt!
-  fee: BigInt! 
-  frtIssued: BigInt!
   timestamp: BigInt!
   transactionHash: Bytes!
 }
 
 type BuyOrder @entity {
-  id: ID! # can be transaction hash in block
+  id: ID! # identified by the  H(transaction hash + BuyToken [String] + amount)
   auction: Auction!
   tokenPair: TokenPair!
   trader: Trader!
   amount: BigInt!
-  fee: BigInt!
-  frtIssued: BigInt!
   timestamp: BigInt!
   transactionHash: Bytes!
 }
 
+type TokenPair @entity {
+  id: ID! # identified by the sell address + buy address [Sring]
+  token1: Bytes!
+  token2: Bytes!
+  latestStartTime: BigInt
+  latestClearTime: BigInt
+  auctions: [Auction!] @derivedFrom(field: "tokenPair")
+  traders: [Trader!]
+  currentAuctionIndex: Int 
+  listingTimestamp: BigInt
+  listingTransactionHash: Bytes
+}
+
 type Token @entity {
-  id: ID! #Token Address
-  sellOrders: [SellOrder!]
-  buyOrders: [BuyOrder!]
-  Traders: [Trader!]
-  tokenBalances: [TokenBalance!]
-  tokenPairs: [TokenPair!]
-  whitelisted: Boolean
+  id: ID! #Token Address 
+  sellOrders: [SellOrder!]!
+  buyOrders: [BuyOrder!]!
+  traders: [Trader!]!
+  tokenPairs: [TokenPair!]! 
+  whitelisted: Boolean!
 }
 
 type TokenBalance @entity {
   id: ID! # identified by Trader + Token 
-  trader: Trader!
-  token: Token!
+  trader: Trader
+  token: Token
   totalDeposited: BigInt
   totalWithdrawn: BigInt
   balance: BigInt
-  tokenAuctionBalance: [TokenAuctionBalance!]
 }
 
 type TokenAuctionBalance @entity {
-  id: ID! # Trader + Auction 
+  id: ID! # Identified by Trader + Auction [String]
   trader: Trader
   auction: Auction
-  buyTokenBalance: BigInt
   sellTokenBalance: BigInt
+  buyTokenBalance: BigInt
+  totalFeesPaid: BigInt
+}
+
+type Deposit @entity {
+  id: ID! # Identified by H(transaction hash + Token + amount)
+  trader: Trader!
+  token: Token!
+  amount: BigInt
+  timestamp: BigInt
+  transactionHash: Bytes
+}
+
+type Withdrawal @entity {
+  id: ID! # Identified by H(transaction hash + Token + amount)
+  trader: Trader!
+  token: Token!
+  amount: BigInt
+  timestamp: BigInt
+  transactionHash: Bytes
 }

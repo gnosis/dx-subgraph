@@ -6,9 +6,9 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: DutchExchange
-    network: dev
+    network: mainnet
     source:
-      address: '0xb09bcc172050fbd4562da8b229cf3e45dc3045a6'
+      address: '0xb9812e2fa995ec53b5b6df34d21f9304762c5497'
       abi: DutchExchange
     mapping:
       kind: ethereum/events
@@ -29,7 +29,7 @@ dataSources:
         - event: NewBuyOrder(address,address,address,uint256,uint256)
           handler: handleNewBuyOrder
         - event: NewSellerFundsClaim(address,address,address,uint256,uint256,uint256)
-          handler: handleNewSellFundsClaim
+          handler: handleNewSellerFundsClaim
         - event: NewBuyerFundsClaim(address,address,address,uint256,uint256,uint256)
           handler: handleNewBuyerFundsClaim
         - event: NewTokenPair(address,address)
@@ -40,4 +40,6 @@ dataSources:
           handler: handleAuctionStartScheduled
         - event: Fee(address,address,address,uint256,uint256)
           handler: handleFee
+        - event: Approval(address,bool)
+          handler: handleApproval
       file: ./src/mapping.ts
