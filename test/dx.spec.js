@@ -222,11 +222,16 @@ contract('DutchExchange', accounts => {
     for (const amount of trader2Data.trader.sellOrders.map(order => order.amount)) {
       assert.equal(fromWei(amount), '4975');
     }
-
+    let ªPrice = await dx.getCurrentAuctionPrice(eth.address, gno.address, 1);
+    let ºPrice = await dx.getCurrentAuctionPrice(gno.address, eth.address, 1);
+    console.log('TCL: ªPrice', ªPrice.num.toString(), ' --- ', ªPrice.den.toString());
+    console.log('TCL: ºPrice', ºPrice.num.toString(), ' --- ', ºPrice.den.toString());
     // Wait for the auction to start
     await wait(64800, 1);
-    log(await dx.getCurrentAuctionPrice(eth.address, gno.address, 1));
-    log(await dx.getCurrentAuctionPrice(gno.address, eth.address, 1));
+    ªPrice = await dx.getCurrentAuctionPrice(eth.address, gno.address, 1);
+    ºPrice = await dx.getCurrentAuctionPrice(gno.address, eth.address, 1);
+    console.log('TCL: ªPrice', ªPrice.num.toString(), ' --- ', ªPrice.den.toString());
+    console.log('TCL: ºPrice', ºPrice.num.toString(), ' --- ', ºPrice.den.toString());
 
     // End of tessts
   });

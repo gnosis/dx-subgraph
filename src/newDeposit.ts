@@ -18,7 +18,6 @@ export function handleNewDeposit(event: NewDeposit): void {
     trader.tokenPairsParticipated = [];
     trader.tokensParticipated = [];
     trader.tokenAuctionBalances = [];
-    trader.firstParticipation = zeroAsBigInt;
   }
   trader.save();
 

@@ -7,15 +7,24 @@ export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
   let params = event.params;
 
   // Trader SECTION
-  let from = event.transaction.from;
-  let trader = Trader.load(from.toHex());
+  let trader = Trader.load(params.user.toHex());
+  if (trader == null) {
+    trader = new Trader(params.user.toHex());
+    trader.firstParticipation = zeroAsBigInt;
+    trader.totalFrts = zeroAsBigInt;
+    trader.sellOrders = [];
+    trader.buyOrders = [];
+    trader.tokenPairsParticipated = [];
+    trader.tokensParticipated = [];
+    trader.tokenAuctionBalances = [];
+  }
   trader.totalFrts = trader.totalFrts.plus(params.frtsIssued);
   trader.save();
 
   // TokenBalance SECTION
-  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.sellToken));
+  let tokenBalance = TokenBalance.load(tokenBalanceId(params.user, params.sellToken));
   if (tokenBalance == null) {
-    tokenBalance = new TokenBalance(tokenBalanceId(from, params.sellToken));
+    tokenBalance = new TokenBalance(tokenBalanceId(params.user, params.sellToken));
     tokenBalance.trader = trader.id;
     tokenBalance.token = Token.load(params.sellToken.toHex()).id;
     tokenBalance.totalDeposited = zeroAsBigInt;
@@ -27,7 +36,7 @@ export function handleNewBuyerFundsClaim(event: NewBuyerFundsClaim): void {
 
   // TokenAuctionBalance SECTION
   let auctionBalanceId = tokenAuctionBalanceId(
-    from,
+    params.user,
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)
   );
   let tokenAuctionBalance = TokenAuctionBalance.load(auctionBalanceId);

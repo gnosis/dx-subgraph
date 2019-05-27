@@ -23,15 +23,24 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
   let params = event.params;
   let dx = DutchExchange.bind(event.address);
   let tokenOrder = dx.getTokenOrder(params.sellToken, params.buyToken);
-  let from = event.transaction.from;
 
   // Trader SECTION
-  let trader = Trader.load(from.toHex());
+  let trader = Trader.load(params.user.toHex());
+  if (trader == null) {
+    trader = new Trader(params.user.toHex());
+    trader.firstParticipation = zeroAsBigInt;
+    trader.totalFrts = zeroAsBigInt;
+    trader.sellOrders = [];
+    trader.buyOrders = [];
+    trader.tokenPairsParticipated = [];
+    trader.tokensParticipated = [];
+    trader.tokenAuctionBalances = [];
+  }
   let traderParticipation = trader.firstParticipation;
   if (traderParticipation.equals(zeroAsBigInt)) {
     traderParticipation = event.block.timestamp;
+    trader.firstParticipation = traderParticipation;
   }
-  trader.firstParticipation = traderParticipation;
   trader.lastActive = event.block.timestamp;
   trader.save();
 
@@ -52,7 +61,7 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
     auctionId(params.sellToken, params.buyToken, params.auctionIndex)
   ).id;
   buyOrder.tokenPair = tokenPair.id;
-  buyOrder.trader = Trader.load(from.toHex()).id;
+  buyOrder.trader = Trader.load(params.user.toHex()).id;
   buyOrder.amount = params.amount;
   buyOrder.timestamp = event.block.timestamp;
   buyOrder.transactionHash = event.transaction.hash;
@@ -80,25 +89,46 @@ export function handleNewBuyOrder(event: NewBuyOrder): void {
 
   // Auction SECTION
   let auction = Auction.load(auctionId(params.sellToken, params.buyToken, params.auctionIndex));
+  if (auction == null) {
+    auction = new Auction(auctionId(params.sellToken, params.buyToken, params.auctionIndex));
+    auction.traders = [];
+    auction.sellOrders = [];
+    auction.buyOrders = [];
+  }
   let auctionTraders = auction.traders;
   if (!checkIfValueExistsInArray(auction.traders as string[], trader.id)) {
     auctionTraders[auctionTraders.length] = trader.id;
     auction.traders = auctionTraders;
     auction.save();
   }
+  auction.save();
 
   // TokenBalance SECTION
-  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.buyToken));
+  let tokenBalance = TokenBalance.load(tokenBalanceId(params.user, params.buyToken));
+  if (tokenBalance == null) {
+    tokenBalance = new TokenBalance(tokenBalanceId(params.user, params.buyToken));
+    tokenBalance.trader = trader.id;
+    tokenBalance.token = token.id;
+    tokenBalance.totalDeposited = zeroAsBigInt;
+    tokenBalance.totalWithdrawn = zeroAsBigInt;
+    tokenBalance.balance = zeroAsBigInt;
+  }
   tokenBalance.balance = tokenBalance.balance.minus(params.amount);
   tokenBalance.save();
 
   // TokenAuctionBalance SECTION
   let tokenAuctionBalance = TokenAuctionBalance.load(
-    tokenAuctionBalanceId(from, auctionId(params.sellToken, params.buyToken, params.auctionIndex))
+    tokenAuctionBalanceId(
+      params.user,
+      auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+    )
   );
   if (tokenAuctionBalance == null) {
     tokenAuctionBalance = new TokenAuctionBalance(
-      tokenAuctionBalanceId(from, auctionId(params.sellToken, params.buyToken, params.auctionIndex))
+      tokenAuctionBalanceId(
+        params.user,
+        auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+      )
     );
     tokenAuctionBalance.trader = trader.id;
     tokenAuctionBalance.auction = auction.id;

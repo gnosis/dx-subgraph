@@ -71,8 +71,8 @@ type Token @entity {
 
 type TokenBalance @entity {
   id: ID! # identified by Trader + Token 
-  trader: Trader!
-  token: Token!
+  trader: Trader
+  token: Token
   totalDeposited: BigInt
   totalWithdrawn: BigInt
   balance: BigInt

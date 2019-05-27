@@ -5,7 +5,32 @@ import { Auction, TokenAuctionBalance, TokenBalance, Trader, Token } from './typ
 
 export function handleFee(event: Fee): void {
   let params = event.params;
-  let from = event.transaction.from;
+
+  // Trader SECTION
+  let trader = Trader.load(params.user.toHex());
+  if (trader == null) {
+    trader = new Trader(params.user.toHex());
+    trader.firstParticipation = zeroAsBigInt;
+    trader.totalFrts = zeroAsBigInt;
+    trader.sellOrders = [];
+    trader.buyOrders = [];
+    trader.tokenPairsParticipated = [];
+    trader.tokensParticipated = [];
+    trader.tokenAuctionBalances = [];
+  }
+  trader.save();
+
+  // Token SECTION
+  let token = Token.load(params.primaryToken.toHex());
+  if (token == null) {
+    token = new Token(params.primaryToken.toHex());
+    token.sellOrders = [];
+    token.buyOrders = [];
+    token.traders = [];
+    token.tokenPairs = [];
+    token.whitelisted = false;
+  }
+  token.save();
 
   // Auction SECTION
   let auction = Auction.load(
@@ -28,11 +53,11 @@ export function handleFee(event: Fee): void {
   auction.save();
 
   // TokenBalance SECTION
-  let tokenBalance = TokenBalance.load(tokenBalanceId(from, params.primaryToken));
+  let tokenBalance = TokenBalance.load(tokenBalanceId(params.user, params.primaryToken));
   if (tokenBalance == null) {
-    tokenBalance = new TokenBalance(tokenBalanceId(from, params.primaryToken));
-    tokenBalance.trader = Trader.load(from.toHex()).id;
-    tokenBalance.token = Token.load(params.primaryToken.toHex()).id;
+    tokenBalance = new TokenBalance(tokenBalanceId(params.user, params.primaryToken));
+    tokenBalance.trader = trader.id;
+    tokenBalance.token = token.id;
     tokenBalance.totalDeposited = zeroAsBigInt;
     tokenBalance.totalWithdrawn = zeroAsBigInt;
     tokenBalance.balance = zeroAsBigInt;
@@ -54,7 +79,7 @@ export function handleFee(event: Fee): void {
         auctionId(params.primaryToken, params.secondarToken, params.auctionIndex)
       )
     );
-    tokenAuctionBalance.trader = Trader.load(from.toHex()).id;
+    tokenAuctionBalance.trader = trader.id;
     tokenAuctionBalance.auction = auction.id;
     tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
     tokenAuctionBalance.buyTokenBalance = zeroAsBigInt;
