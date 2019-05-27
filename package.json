@@ -24,7 +24,7 @@
     "create-local": "graph create Gnosis/DutchX --node http://127.0.0.1:8020",
     "codegen": "graph codegen --debug --output-dir src/types/",
     "build": "graph build --debug",
-    "deploy": "graph deploy InfiniteStyles/DutchX --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy": "graph deploy Gnosis/DutchX --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy Gnosis/DutchX --debug --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down -v",
