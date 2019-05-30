@@ -1,13 +1,12 @@
 import { auctionId, zeroAsBigInt, tokenPairId, checkIfValueExistsInArray } from './utils';
 import { AuctionStartScheduled, DutchExchange } from './types/DutchExchange/DutchExchange';
 import { Auction, TokenPair, Trader } from './types/schema';
+import { BigDecimal, BigInt } from '@graphprotocol/graph-ts';
 
 export function handleAuctionStartScheduled(event: AuctionStartScheduled): void {
   let params = event.params;
   let dx = DutchExchange.bind(event.address);
   let tokenOrder = dx.getTokenOrder(params.sellToken, params.buyToken);
-  let from = event.transaction.from;
-  let trader = Trader.load(from.toHex());
 
   // TokenPair SECTION
   let tokenPair = TokenPair.load(tokenPairId(tokenOrder.value0, tokenOrder.value1));
@@ -15,18 +14,13 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
     tokenPair = new TokenPair(tokenPairId(tokenOrder.value0, tokenOrder.value1));
     tokenPair.token1 = params.sellToken;
     tokenPair.token2 = params.buyToken;
-    tokenPair.currentAuctionIndex = 1;
+    tokenPair.currentAuctionIndex = new BigDecimal(BigInt.fromI32(1));
     tokenPair.auctions = [];
-    tokenPair.traders = [trader.id];
+    tokenPair.traders = [];
     tokenPair.listingTimestamp = event.block.timestamp;
     tokenPair.listingTransactionHash = event.transaction.hash;
   }
   tokenPair.latestStartTime = params.auctionStart;
-  let tokenPairTraders = tokenPair.traders;
-  if (!checkIfValueExistsInArray(tokenPairTraders as string[], trader.id)) {
-    tokenPairTraders[tokenPairTraders.length] = trader.id;
-    tokenPair.traders = tokenPairTraders;
-  }
   tokenPair.save();
 
   // Auction SECTION
