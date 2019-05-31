@@ -1,4 +1,4 @@
-import { auctionId, zeroAsBigInt, tokenPairId, checkIfValueExistsInArray } from './utils';
+import { auctionId, zeroAsBigInt, tokenPairId, checkIfValueExistsInArray, oneAsBigInt } from './utils';
 import { AuctionStartScheduled, DutchExchange } from './types/DutchExchange/DutchExchange';
 import { Auction, TokenPair, Trader } from './types/schema';
 import { BigDecimal, BigInt } from '@graphprotocol/graph-ts';
@@ -14,12 +14,13 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
     tokenPair = new TokenPair(tokenPairId(tokenOrder.value0, tokenOrder.value1));
     tokenPair.token1 = params.sellToken;
     tokenPair.token2 = params.buyToken;
-    tokenPair.currentAuctionIndex = new BigDecimal(BigInt.fromI32(1));
+    tokenPair.currentAuctionIndex = oneAsBigInt
     tokenPair.auctions = [];
     tokenPair.traders = [];
     tokenPair.listingTimestamp = event.block.timestamp;
     tokenPair.listingTransactionHash = event.transaction.hash;
   }
+  tokenPair.currentAuctionIndex = params.auctionIndex;
   tokenPair.latestStartTime = params.auctionStart;
   tokenPair.save();
 
@@ -32,6 +33,8 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
     sellAuction.traders = [];
     sellAuction.sellOrders = [];
     sellAuction.buyOrders = [];
+    sellAuction.buyVolume = zeroAsBigInt;
+    sellAuction.sellVolume = zeroAsBigInt;
   }
   sellAuction.sellToken = params.sellToken;
   sellAuction.buyToken = params.buyToken;
@@ -53,6 +56,8 @@ export function handleAuctionStartScheduled(event: AuctionStartScheduled): void 
     buyAuction.traders = [];
     buyAuction.sellOrders = [];
     buyAuction.buyOrders = [];
+    sellAuction.buyVolume = zeroAsBigInt;
+    sellAuction.sellVolume = zeroAsBigInt;
   }
   buyAuction.sellToken = params.buyToken;
   buyAuction.buyToken = params.sellToken;

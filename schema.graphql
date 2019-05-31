@@ -3,7 +3,7 @@ type Auction @entity {
   sellToken: Bytes
   buyToken: Bytes
   sellVolume: BigInt
-  buyVolume: BigInt!
+  buyVolume: BigInt
   auctionIndex: BigInt
   cleared: Boolean
   startTime: BigInt
@@ -55,7 +55,7 @@ type TokenPair @entity {
   latestClearTime: BigInt
   auctions: [Auction!] @derivedFrom(field: "tokenPair")
   traders: [Trader!]
-  currentAuctionIndex: BigDecimal 
+  currentAuctionIndex: BigInt 
   listingTimestamp: BigInt
   listingTransactionHash: Bytes
 }

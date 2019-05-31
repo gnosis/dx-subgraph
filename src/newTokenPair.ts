@@ -55,7 +55,7 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     tokenPair = new TokenPair(tokenPairId(tokenOrder.value0, tokenOrder.value1));
     tokenPair.token1 = params.sellToken;
     tokenPair.token2 = params.buyToken;
-    tokenPair.currentAuctionIndex = new BigDecimal(BigInt.fromI32(1));
+    tokenPair.currentAuctionIndex = oneAsBigInt
     tokenPair.auctions = [];
     tokenPair.traders = [];
     tokenPair.listingTimestamp = event.block.timestamp;
@@ -76,6 +76,8 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     sellAuction.traders = [];
     sellAuction.sellOrders = [];
     sellAuction.buyOrders = [];
+    sellAuction.buyVolume = zeroAsBigInt;
+    sellAuction.sellVolume = zeroAsBigInt;
   }
   sellAuction.sellToken = params.sellToken;
   sellAuction.buyToken = params.buyToken;
@@ -92,6 +94,8 @@ export function handleNewTokenPair(event: NewTokenPair): void {
     buyAuction.traders = [];
     buyAuction.sellOrders = [];
     buyAuction.buyOrders = [];
+    sellAuction.buyVolume = zeroAsBigInt;
+    sellAuction.sellVolume = zeroAsBigInt;
   }
   buyAuction.sellToken = params.buyToken;
   buyAuction.buyToken = params.sellToken;
