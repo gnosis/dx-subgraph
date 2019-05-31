@@ -1,5 +1,6 @@
+import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { AuctionCleared, DutchExchange } from './types/DutchExchange/DutchExchange';
-import { auctionId, tokenPairId } from './utils';
+import { auctionId, tokenPairId, oneAsBigInt } from './utils';
 import { Auction, TokenPair } from './types/schema';
 
 export function handleAuctionCleared(event: AuctionCleared): void {
@@ -40,7 +41,7 @@ export function handleAuctionCleared(event: AuctionCleared): void {
 
   // TokenPair SECTION
   let tokenPair = TokenPair.load(tokenPairId(tokenOrder.value0, tokenOrder.value1));
-  tokenPair.currentAuctionIndex += 1;
-  tokenPair.latestClearTime = event.block.timestamp;
+  tokenPair.currentAuctionIndex = params.auctionIndex;
+  tokenPair.latestClearTime = clearingTime;
   tokenPair.save();
 }

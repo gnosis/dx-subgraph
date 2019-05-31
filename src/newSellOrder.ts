@@ -15,8 +15,8 @@ import {
   Trader,
   SellOrder,
   Token,
-  TokenAuctionBalance,
-  TokenBalance
+  /* TokenAuctionBalance,
+  TokenBalance */
 } from './types/schema';
 
 export function handleNewSellOrder(event: NewSellOrder): void {
@@ -34,7 +34,7 @@ export function handleNewSellOrder(event: NewSellOrder): void {
     trader.buyOrders = [];
     trader.tokenPairsParticipated = [];
     trader.tokensParticipated = [];
-    trader.tokenAuctionBalances = [];
+    // trader.tokenAuctionBalances = [];
   }
   let traderParticipation = trader.firstParticipation;
   if (traderParticipation.equals(zeroAsBigInt)) {
@@ -82,6 +82,14 @@ export function handleNewSellOrder(event: NewSellOrder): void {
 
   // Token SECTION
   let token = Token.load(params.sellToken.toHex());
+  if (token == null) {
+    token = new Token(params.sellToken.toHex());
+    token.sellOrders = [];
+    token.buyOrders = [];
+    token.traders = [];
+    token.tokenPairs = [];
+    token.whitelisted = false;
+  }
   let tokenSellOrders = token.sellOrders;
   tokenSellOrders[tokenSellOrders.length] = sellOrder.id;
   token.sellOrders = tokenSellOrders;
@@ -93,6 +101,14 @@ export function handleNewSellOrder(event: NewSellOrder): void {
   token.save();
 
   let buyToken = Token.load(params.buyToken.toHex());
+  if (buyToken == null) {
+    buyToken = new Token(params.buyToken.toHex());
+    buyToken.sellOrders = [];
+    buyToken.buyOrders = [];
+    buyToken.traders = [];
+    buyToken.tokenPairs = [];
+    buyToken.whitelisted = false;
+  }
   let buyTokenTraders = buyToken.traders;
   if (!checkIfValueExistsInArray(buyToken.traders as string[], trader.id)) {
     buyTokenTraders[buyTokenTraders.length] = trader.id;
@@ -101,38 +117,38 @@ export function handleNewSellOrder(event: NewSellOrder): void {
   buyToken.save();
 
   // TokenBalance Section
-  let tokenBalance = TokenBalance.load(tokenBalanceId(params.user, params.sellToken));
-  if (tokenBalance == null) {
-    tokenBalance = new TokenBalance(tokenBalanceId(params.user, params.sellToken));
-    tokenBalance.trader = trader.id;
-    tokenBalance.token = token.id;
-    tokenBalance.totalDeposited = zeroAsBigInt;
-    tokenBalance.totalWithdrawn = zeroAsBigInt;
-    tokenBalance.balance = zeroAsBigInt;
-  }
-  tokenBalance.balance = tokenBalance.balance.minus(params.amount);
-  tokenBalance.save();
+    // let tokenBalance = TokenBalance.load(tokenBalanceId(params.user, params.sellToken));
+    // if (tokenBalance == null) {
+    //   tokenBalance = new TokenBalance(tokenBalanceId(params.user, params.sellToken));
+    //   tokenBalance.trader = trader.id;
+    //   tokenBalance.token = token.id;
+    //   tokenBalance.totalDeposited = zeroAsBigInt;
+    //   tokenBalance.totalWithdrawn = zeroAsBigInt;
+    //   tokenBalance.balance = zeroAsBigInt;
+    // }
+    // tokenBalance.balance = tokenBalance.balance.minus(params.amount);
+    // tokenBalance.save();
 
   // TokenAuctionBalance SECTION
-  let tokenAuctionBalance = TokenAuctionBalance.load(
-    tokenAuctionBalanceId(
-      params.user,
-      auctionId(params.sellToken, params.buyToken, params.auctionIndex)
-    )
-  );
-  if (tokenAuctionBalance == null) {
-    tokenAuctionBalance = new TokenAuctionBalance(
-      tokenAuctionBalanceId(
-        params.user,
-        auctionId(params.sellToken, params.buyToken, params.auctionIndex)
-      )
-    );
-    tokenAuctionBalance.trader = trader.id;
-    tokenAuctionBalance.auction = auction.id;
-    tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
-    tokenAuctionBalance.buyTokenBalance = zeroAsBigInt;
-    tokenAuctionBalance.totalFeesPaid = zeroAsBigInt;
-  }
-  tokenAuctionBalance.sellTokenBalance = tokenAuctionBalance.sellTokenBalance.plus(params.amount);
-  tokenAuctionBalance.save();
+    // let tokenAuctionBalance = TokenAuctionBalance.load(
+    //   tokenAuctionBalanceId(
+    //     params.user,
+    //     auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+    //   )
+    // );
+    // if (tokenAuctionBalance == null) {
+    //   tokenAuctionBalance = new TokenAuctionBalance(
+    //     tokenAuctionBalanceId(
+    //       params.user,
+    //       auctionId(params.sellToken, params.buyToken, params.auctionIndex)
+    //     )
+    //   );
+    //   tokenAuctionBalance.trader = trader.id;
+    //   tokenAuctionBalance.auction = auction.id;
+    //   tokenAuctionBalance.sellTokenBalance = zeroAsBigInt;
+    //   tokenAuctionBalance.buyTokenBalance = zeroAsBigInt;
+    //   tokenAuctionBalance.totalFeesPaid = zeroAsBigInt;
+    // }
+    // tokenAuctionBalance.sellTokenBalance = tokenAuctionBalance.sellTokenBalance.plus(params.amount);
+    // tokenAuctionBalance.save();
 }
