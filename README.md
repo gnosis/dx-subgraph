@@ -14,7 +14,7 @@ These changes are due to there not being a way to get the `msg.sender` variable 
 
 Before the subgraph can be deployed to the main graph node, you must create the ABIs, setup the _network_ and _address_ fields in the `subgraph.yaml`, and make sure to create and deploy to the right subgraph name. Below are the steps to do this:
 
-1.  git clone https://github.com/gnosis/hg-subgraph.git && cd hg-subgraph
+1.  git clone https://github.com/gnosis/dx-subgraph.git && cd dx-subgraph
 
 2.  npm install
 
